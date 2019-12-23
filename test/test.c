@@ -75,10 +75,11 @@ int main(void) {
     size_t cmd_buf_size;
     printf("Input: ");
     while ((cnt = getline(&command, &cmd_buf_size, stdin)) != -1) {
-        printf("Read: %ld\n", cnt);
-        command[cnt - 1] = '\r';
-        command[cnt] = '\n';
-        cnt++;
+        if (command[0] == 'P' || command[0] == 'p')
+            cnt = 1;
+        else 
+            command[cnt - 1] = '\r';
+
         printf("Command given: %s\n", command);
         printf("Sending %ld bytes...", cnt);
         r = libpolhemus_write(handle, command, cnt, &transferred);
@@ -91,8 +92,6 @@ int main(void) {
         } else {
             printf("SUCCESS!\n");
         }
-
-        usleep(50);
 
         r = libpolhemus_read(handle, buf, BUF_SIZE, &transferred);
         printf("Received %d bytes\n", transferred);
