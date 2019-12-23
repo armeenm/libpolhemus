@@ -3,12 +3,13 @@ project(polhemus)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "-Wshadow -Wall -Wextra -pedantic -pipe")
-set(CMAKE_C_FLAGS "-Wshadow -Wall -Wextra -pedantic -pipe")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS}) 
 
 # Library
 file(GLOB CXX_SRCS "src/*.cpp")
 add_library(polhemus STATIC ${CXX_SRCS})
-target_include_directories(polhemus PRIVATE src)
+target_include_directories(polhemus PRIVATE src include)
 target_link_libraries(polhemus usb-1.0)
 
 # Testing
