@@ -18,8 +18,32 @@ int libpolhemus_init() { return libusb_init(nullptr); }
 
 dev_handle* libpolhemus_open(DevType dev_type) {
     auto info = dev_types.at(dev_type);
-    auto handle = libusb_open_device_with_vid_pid(nullptr, info.vid, info.pid);
-    if (!handle) return nullptr;
+    libusb_device** list;
+    libusb_device* found;
+    int err = 0;
+
+    ssize_t cnt = libusb_get_device_list(nullptr, &list);
+    if (cnt < 0)
+        return nullptr;
+
+    for (int i = 0; i < cnt; i++) {
+        libusb_device* device = list[i];
+
+        libusb_device_descriptor desc;
+        err = libusb_get_device_descriptor(device, &desc);
+        if (desc.idVendor == info.vid && desc.idProduct == info.pid) {
+            found = device;
+            break;
+        }
+    }
+    if (!found) return nullptr;
+
+    libusb_device_handle* handle;
+    err = libusb_open(found, &handle);
+    if (err)
+        return nullptr;
+
+    libusb_free_device_list(list, 1);
 
     return new dev_handle{handle, info};
 }
