@@ -27,7 +27,7 @@ struct libpolhemus_device_handle {
 };
 
 int libpolhemus_init();
-libpolhemus_device_handle* libpolhemus_open(DevType dev_type);
+int  libpolhemus_open(DevType dev_type, libpolhemus_device_handle** dev_handle);
 int libpolhemus_read(libpolhemus_device_handle* dev_handle, void* buf,
                      int maxlen, int* transferred);
 int libpolhemus_write(libpolhemus_device_handle* dev_handle, void* buf,
