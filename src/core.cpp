@@ -1,7 +1,9 @@
+#include "core.h"
+
 #include <cstddef>
+#include <iostream>
 #include <tuple>
 #include <unordered_map>
-#include <iostream>
 
 #include "libpolhemus.h"
 
@@ -24,8 +26,7 @@ int libpolhemus_open(DevType dev_type, dev_handle** handle) {
     int err = 0, ret = 0;
 
     ssize_t cnt = libusb_get_device_list(nullptr, &list);
-    if (cnt < 0)
-        return -3;
+    if (cnt < 0) return -3;
 
     for (int i = 0; i < cnt; i++) {
         libusb_device* device = list[i];
@@ -43,8 +44,10 @@ int libpolhemus_open(DevType dev_type, dev_handle** handle) {
         err = libusb_open(found, &usb_handle);
         if (!err)
             *handle = new dev_handle{usb_handle, info};
-        else ret = -2;
-    } else ret = -1;
+        else
+            ret = -2;
+    } else
+        ret = -1;
 
     libusb_free_device_list(list, 1);
 

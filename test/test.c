@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "libpolhemus.h"
 
@@ -62,12 +62,10 @@ int main(void) {
     // Actual Transfer //
     while (!transferred) {
         r = libpolhemus_write(handle, "\r", 1, NULL);
-        if (r < 0)
-            FATAL("data", -1);
+        if (r < 0) FATAL("data", -1);
         usleep(100000);
         r = libpolhemus_read(handle, buf, BUF_SIZE, &transferred);
-        if (r < 0)
-            FATAL("data", -1);
+        if (r < 0) FATAL("data", -1);
     }
 
     char* command = calloc(16, sizeof(char));
@@ -77,7 +75,7 @@ int main(void) {
     while ((cnt = getline(&command, &cmd_buf_size, stdin)) != -1) {
         if (command[0] == 'P' || command[0] == 'p')
             cnt = 1;
-        else 
+        else
             command[cnt - 1] = '\r';
 
         printf("Command given: %s\n", command);
@@ -96,7 +94,7 @@ int main(void) {
         r = libpolhemus_read(handle, buf, BUF_SIZE, &transferred);
         printf("Received %d bytes\n", transferred);
         if (transferred > 0 && transferred < BUF_SIZE) {
-            buf[transferred] = 0; // Null term.
+            buf[transferred] = 0;  // Null term.
             printf("Station number: %u\n", buf[2]);
             printf("Initiating command: 0x%x\n", buf[3]);
             printf("Error indicator: 0x%x\n", buf[4]);
