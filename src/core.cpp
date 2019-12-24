@@ -22,7 +22,7 @@ int libpolhemus_init() { return libusb_init(nullptr); }
 int libpolhemus_open(DevType dev_type, dev_handle** handle) {
     auto info = dev_types.at(dev_type);
     libusb_device** list;
-    libusb_device* found;
+    libusb_device* found = nullptr;
     int err = 0, ret = 0;
 
     ssize_t cnt = libusb_get_device_list(nullptr, &list);

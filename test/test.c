@@ -108,6 +108,7 @@ int main(void) {
     puts("");
 
     free(command);
+    free(buf);
 
     // Close //
     libpolhemus_close(handle);
