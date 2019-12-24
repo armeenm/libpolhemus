@@ -8,6 +8,7 @@
 #include "libpolhemus.h"
 
 #define BUF_SIZE 1000
+#define DEF_TIMEOUT 50
 
 #define PASS(sec) printf("PASS: %s\n", (sec))
 #define PASSM(sec, num) printf("PASS: %s: %d\n", (sec), (num))
@@ -33,8 +34,8 @@
 
 int main(void) {
     libpolhemus_device_handle* handle = NULL;
-    int r = 0, transferred = 0;
-    uint8_t* buf = NULL;
+    int r = 0;
+    uint8_t* buf = malloc(BUF_SIZE * sizeof(uint8_t));
 
     // Init //
     r = libpolhemus_init();
@@ -44,67 +45,51 @@ int main(void) {
     r = libpolhemus_open(PATRIOT_HS, &handle);
     CHECKF("open");
 
-    // Raw Write //
-    r = libpolhemus_write(handle, "\r", 1, &transferred);
-    if (r < 0)
-        FAIL("write", r);
-    else
-        PASSM("write", transferred);
-
-    // Raw Read //
-    buf = malloc(BUF_SIZE * sizeof(uint8_t));
-    r = libpolhemus_read(handle, buf, BUF_SIZE, &transferred);
-    if (r < 0)
-        FAIL("read", r);
-    else
-        PASSM("read", transferred);
-
-    // Actual Transfer //
-    while (!transferred) {
-        r = libpolhemus_write(handle, "\r", 1, NULL);
-        if (r < 0) FATAL("data", -1);
-        usleep(100000);
-        r = libpolhemus_read(handle, buf, BUF_SIZE, &transferred);
-        if (r < 0) FATAL("data", -1);
-    }
-
     char* command = calloc(16, sizeof(char));
-    ssize_t cnt;
+    int sent = 0, rcvd = 0;
+    ssize_t cnt = 1;
     size_t cmd_buf_size;
-    printf("Input: ");
-    while ((cnt = getline(&command, &cmd_buf_size, stdin)) != -1) {
+
+    do {
         if (command[0] == 'P' || command[0] == 'p')
             cnt = 1;
         else
             command[cnt - 1] = '\r';
 
         printf("Command given: %s\n", command);
-        printf("Sending %ld bytes...", cnt);
-        r = libpolhemus_write(handle, command, cnt, &transferred);
+        printf("Counted %ld bytes\n", cnt);
+
+        r = libpolhemus_snd(handle, command, cnt, &sent, DEF_TIMEOUT);
         if (r < 0) {
-            FAIL("data", -1);
+            FAIL("send", r);
             break;
-        } else if (cnt != transferred) {
+        } else if (cnt != sent) {
             printf("FAILED!\n");
             break;
-        } else {
+        } else
             printf("SUCCESS!\n");
-        }
 
-        r = libpolhemus_read(handle, buf, BUF_SIZE, &transferred);
-        printf("Received %d bytes\n", transferred);
-        if (transferred > 0 && transferred < BUF_SIZE) {
-            buf[transferred] = 0;  // Null term.
+        r = libpolhemus_rcv(handle, buf, BUF_SIZE, &rcvd, DEF_TIMEOUT);
+        if (r < 0)
+            FAIL("receive", r);
+
+        printf("Received %d bytes\n", rcvd);
+
+        if (rcvd > 0 && rcvd < BUF_SIZE) {
+            short response_size = (buf[7] << 8) + buf[6];
+
+            buf[rcvd] = 0;  // Null term.
             printf("Station number: %u\n", buf[2]);
             printf("Initiating command: 0x%x\n", buf[3]);
             printf("Error indicator: 0x%x\n", buf[4]);
-            short response_size = (buf[7] << 8) + buf[6];
             printf("Response size: %u\n", response_size);
             printf("Data: %s\n", buf + 8);
         }
+
         printf("Input: ");
         memset(command, 0, 16 * sizeof(char));
-    }
+    } while ((cnt = getline(&command, &cmd_buf_size, stdin)) != -1);
+
     puts("");
 
     free(command);

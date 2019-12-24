@@ -7,9 +7,6 @@
 
 #include "libpolhemus.h"
 
-const int EP = 0;
-const int TIMEOUT = 50;
-
 using dev_handle = libpolhemus_device_handle;
 
 const std::unordered_map<DevType, DevInfo> dev_types = {
@@ -54,25 +51,43 @@ int libpolhemus_open(DevType dev_type, dev_handle** handle) {
     return ret;
 }
 
-int libpolhemus_read(dev_handle* handle, void* buf, int maxlen,
-                     int* transferred) {
+int libpolhemus_rcv(dev_handle* handle, void* buf, int maxlen,
+                     int* transferred, unsigned int timeout) {
     if (!handle) return -1;
 
     int r = libusb_bulk_transfer(handle->libusb_handle, handle->info.read_ep,
                                  static_cast<unsigned char*>(buf), maxlen,
-                                 transferred, TIMEOUT);
+                                 transferred, timeout);
 
     return r;
 }
 
-int libpolhemus_write(dev_handle* handle, void* buf, int maxlen,
-                      int* transferred) {
+int libpolhemus_snd(dev_handle* handle, void* buf, int maxlen,
+                      int* transferred, unsigned int timeout) {
     if (!handle) return -1;
 
     int r = libusb_bulk_transfer(handle->libusb_handle, handle->info.write_ep,
                                  static_cast<unsigned char*>(buf), maxlen,
-                                 transferred, TIMEOUT);
+                                 transferred, timeout);
 
+    return r;
+}
+
+int libpolhemus_sndrcv(
+        dev_handle* handle,
+        void* snd_buf,
+        void* rcv_buf,
+        int max_snd,
+        int max_rcv,
+        int* sent,
+        int* rcvd,
+        unsigned int snd_timeout,
+        unsigned int rcv_timeout) {
+    if (!handle) return -1;
+
+    libpolhemus_snd(handle, snd_buf, max_snd, sent, snd_timeout);
+    int r = libpolhemus_rcv(handle, rcv_buf, max_rcv, rcvd, rcv_timeout);
+    
     return r;
 }
 
