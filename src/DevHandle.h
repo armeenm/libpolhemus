@@ -30,7 +30,7 @@ class DevHandle {
     int send_raw(Buffer buf) const;
     int recv_raw(Buffer buf) const;
 
-    int check_connection() const;
+    int check_connection(uint8_t attempts = 10) const;
 
     int send_cmd(Buffer cmd, Buffer resp) const;
 

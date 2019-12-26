@@ -1,6 +1,11 @@
 #include "DevHandle.h"
 
+#include <chrono>
+#include <cstdint>
+#include <thread>
 #include <unordered_map>
+
+#include "libpolhemus.h"
 
 DevHandle::DevHandle(DevType type)
     : _valid(false), _info(dev_type_info_map.at(type)), _timeout(50) {
@@ -36,12 +41,55 @@ bool DevHandle::valid() const { return _valid; }
 
 DevInfo DevHandle::info() const { return _info; }
 
-unsigned int timeout() const { return _timeout; }
-void timeout(unsigned int timeout) { _timeout = timeout; }
+unsigned int DevHandle::timeout() const { return _timeout; }
+void DevHandle::timeout(unsigned int timeout) { _timeout = timeout; }
 
-int recv_raw(Buffer buf) const { return transfer_raw(buf, _info.read_ep); }
+int DevHandle::recv_raw(Buffer buf) const {
+    return transfer_raw(buf, _info.read_ep);
+}
 
-int send_raw(Buffer buf) const { return transfer_raw(buf, _info.write_ep); }
+int DevHandle::send_raw(Buffer buf) const {
+    return transfer_raw(buf, _info.write_ep);
+}
+
+int DevHandle::check_connection(uint8_t attempts) const {
+    auto cmd = Buffer{"\r", 1};
+    auto resp =
+        Buffer{std::unique_ptr<unsigned char[]>(new unsigned char[128]), 128};
+    int err = 0;
+
+    // Send useless command, await response
+    // Try a total of 'attempts' times before giving up
+    int i = 0;
+    do {
+        i++;
+        if (send_raw(cmd) <= 0) continue;
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        err = recv_raw(resp);
+    } while (err <= 0 && i < attempts);
+
+    if (err <= 0) return -1;
+
+    i = 0;
+
+    // Clear out the ingress buffer
+    do {
+        i++;
+        err = recv_raw(resp);
+    } while (err != LIBUSB_ERROR_TIMEOUT && i < attempts);
+
+    if (err != LIBUSB_ERROR_TIMEOUT) return -1;
+
+    return 0;
+}
+
+int DevHandle::send_cmd(Buffer cmd, Buffer resp) const {
+    return send_buf(cmd, resp,
+                    cmd.buf && cmd.buf[0] != '\r' && cmd.buf[0] != 'p' &&
+                        cmd.buf[0] != 'P');
+}
 
 void DevHandle::close() {
     if (_valid) {
@@ -50,13 +98,9 @@ void DevHandle::close() {
     }
 }
 
-int send_cmd(Buffer cmd, Buffer resp) const {
-    return send_buf(cmd, resp, cmd[0] != 'p' || cmd[0] != 'P');
-}
-
 DevHandle::~DevHandle() { close(); }
 
-int transfer_raw(Buffer buf, unsigned char ep) const {
+int DevHandle::transfer_raw(Buffer buf, unsigned char ep) const {
     int transferred;
     int err = libusb_bulk_transfer(_handle, ep, buf.data, buf.len, &transferred,
                                    _timeout);
@@ -64,16 +108,16 @@ int transfer_raw(Buffer buf, unsigned char ep) const {
     return err ? err < 0 : transferred;
 }
 
-int send_buf(Buffer cmd, Buffer resp, bool add_cr) const {
+int DevHandle::send_buf(Buffer cmd, Buffer resp, bool add_cr) const {
     for (int i = 0; i < cmd.len; i++) {
-        int err = raw_send({cmd.data + i, 1});
-        if (err != 1) return -100;
+        int err = send_raw({cmd.data + i, 1});
+        if (err != 1) return err;
     }
 
     if (add_cr) {
-        int err = raw_send({"\r", 1});
-        if (err != 1) return -100;
+        int err = send_raw({"\r", 1});
+        if (err != 1) return err;
     }
 
-    return raw_recv(resp);
+    return recv_raw(resp);
 }

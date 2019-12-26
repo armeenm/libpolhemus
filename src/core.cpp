@@ -37,16 +37,16 @@ void libpolhemus_set_timeout(uint8_t handle_idx, unsigned int timeout) {
     handle.timeout(timeout);
 }
 
-int libpolhemus_raw_rcv(uint8_t handle_idx, Buffer buf) {
+int libpolhemus_recv_raw(uint8_t handle_idx, Buffer buf) {
     CHECK_H(handle_idx, handle, -10);
 
-    return handle.raw_rcv(buf);
+    return handle.recv_raw(buf);
 }
 
-int libpolhemus_raw_snd(uint8_t handle_idx, Buffer buf) {
+int libpolhemus_send_raw(uint8_t handle_idx, Buffer buf) {
     CHECK_H(handle_idx, handle, -10);
 
-    return handle.raw_snd(buf);
+    return handle.send_raw(buf);
 }
 
 void libpolhemus_close(uint8_t handle_idx) {

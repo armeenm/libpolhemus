@@ -6,9 +6,9 @@
 
 #ifdef __cplusplus
 extern "C" {
-enum class DevType { DEVS };
+enum class DevType { PATRIOT, PATRIOT_HS };
 #else
-typedef enum DevType { DEVS } DevType;
+typedef enum DevType { PATRIOT, PATRIOT_HS } DevType;
 #endif
 
 struct Buffer {
