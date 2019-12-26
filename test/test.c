@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,81 +22,63 @@
         return -1;                               \
     } while (0)
 
-#define CHECK2(str, func) \
-    do {                  \
-        if (r)            \
-            func(str, r); \
-        else              \
-            PASS(str);    \
+#define CHECK2(str, func, val) \
+    do {                       \
+        if (r != val)          \
+            func(str, r);      \
+        else                   \
+            PASS(str);         \
     } while (0)
 
-#define CHECK(str) CHECK2(str, FAIL)
-#define CHECKF(str) CHECK2(str, FATAL)
+#define CHECK(str) CHECK2(str, FAIL, 0)
+#define CHECKV(str, val) CHECK2(str, FAIL, val)
+#define CHECKF(str) CHECK2(str, FATAL, 0)
+#define CHECKFV(str, val) CHECK2(str, FATAL, val)
 
 int main(void) {
     uint8_t handle_idx;
-    uint8_t* buf = malloc(BUF_SIZE * sizeof(uint8_t));
     int r = 0;
 
     // Init //
     r = libpolhemus_init();
     CHECKF("init");
 
-    // Open //
-    r = libpolhemus_open(PATRIOT_HS, &handle);
+    r = libpolhemus_open(PATRIOT_HS, &handle_idx);
     CHECKF("open");
 
-    char* command = calloc(16, sizeof(char));
-    int sent = 0, rcvd = 0;
-    ssize_t cnt = 1;
+    r = libpolhemus_check_connection(handle_idx);
+    CHECK("check conn");
+
+    Buffer cmd = {calloc(16, sizeof(unsigned char)), 0};
     size_t cmd_buf_size;
 
-    do {
-        if (command[0] == 'P' || command[0] == 'p')
-            cnt = 1;
-        else
-            command[cnt - 1] = '\r';
+    Buffer resp = {malloc(1000 * sizeof(unsigned char)), 1000};
 
-        printf("Command given: %s\n", command);
-        printf("Counted %ld bytes\n", cnt);
-
-        r = libpolhemus_snd(handle, command, cnt, &sent, DEF_TIMEOUT);
+    printf("Input: ");
+    while ((cmd.len = getline((char**)&cmd.data, &cmd_buf_size, stdin)) != -1) {
+        cmd.len--;  // Remove newline
+        r = libpolhemus_send_cmd(handle_idx, cmd, resp);
         if (r < 0) {
-            FAIL("send", r);
+            printf("Oops! %d", r);
             break;
-        } else if (cnt != sent) {
-            printf("FAILED!\n");
-            break;
-        } else
-            printf("SUCCESS!\n");
-
-        r = libpolhemus_rcv(handle, buf, BUF_SIZE, &rcvd, DEF_TIMEOUT);
-        if (r < 0) FAIL("receive", r);
-
-        printf("Received %d bytes\n", rcvd);
-
-        if (rcvd > 0 && rcvd < BUF_SIZE) {
-            short response_size = (buf[7] << 8) + buf[6];
-
-            buf[rcvd] = 0;  // Null term.
-            printf("Station number: %u\n", buf[2]);
-            printf("Initiating command: 0x%x\n", buf[3]);
-            printf("Error indicator: 0x%x\n", buf[4]);
-            printf("Response size: %u\n", response_size);
-            printf("Data: %s\n", buf + 8);
         }
 
+        printf("Received %d bytes\n", r);
+        resp.data[r] = 0;  // Null term
+        printf("Data: %s\n", resp.data);
+        // printf("Station Number: %d%d\n", resp.data[0], resp.data[1]);
+
+        memset(cmd.data, 0, 16 * sizeof(char));
         printf("Input: ");
-        memset(command, 0, 16 * sizeof(char));
-    } while ((cnt = getline(&command, &cmd_buf_size, stdin)) != -1);
+    }
 
     puts("");
 
-    free(command);
-    free(buf);
+    free(cmd.data);
+    free(resp.data);
 
     // Close //
-    libpolhemus_close(handle);
+    libpolhemus_close(handle_idx);
     PASS("close");
 
     // Exit //

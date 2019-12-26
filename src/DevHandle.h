@@ -38,7 +38,7 @@ class DevHandle {
     ~DevHandle();
 
    private:
-    int raw_transfer(Buffer buf, unsigned char ep) const;
+    int transfer_raw(Buffer buf, unsigned char ep) const;
     int send_buf(Buffer cmd, Buffer resp, bool add_cr) const;
 
     bool _valid;
@@ -50,6 +50,7 @@ class DevHandle {
 const std::unordered_map<DevType, DevInfo> dev_type_info_map = {
     {DevType::PATRIOT,
      {DevType::PATRIOT, "Patriot", 0x0f44, 0xef12, 0x02, 0x82}},
+
     {DevType::PATRIOT_HS,
-     {DevType::PATRIOT_HS, "Patriot HS", 0x0f44, 0xef20, 0x04, 0x88}},
+     {DevType::PATRIOT_HS, "High Speed Patriot", 0x0f44, 0xef20, 0x04, 0x88}},
 };

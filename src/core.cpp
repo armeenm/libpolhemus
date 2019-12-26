@@ -1,7 +1,5 @@
-#include <cstddef>
+#include <cstdint>
 #include <iostream>
-#include <tuple>
-#include <unordered_map>
 #include <vector>
 
 #include "DevHandle.h"
@@ -31,10 +29,28 @@ int libpolhemus_open(DevType dev_type, uint8_t* handle_idx) {
     return 0;
 }
 
+bool libpolhemus_valid(uint8_t handle_idx) {
+    CHECK_H(handle_idx, handle, 0);
+
+    return handle.valid();
+}
+
+unsigned int libpolhemus_get_timeout(uint8_t handle_idx) {
+    CHECK_H(handle_idx, handle, -10);
+
+    return handle.timeout();
+}
+
 void libpolhemus_set_timeout(uint8_t handle_idx, unsigned int timeout) {
     CHECK_H(handle_idx, handle, void());
 
     handle.timeout(timeout);
+}
+
+int libpolhemus_send_raw(uint8_t handle_idx, Buffer buf) {
+    CHECK_H(handle_idx, handle, -10);
+
+    return handle.send_raw(buf);
 }
 
 int libpolhemus_recv_raw(uint8_t handle_idx, Buffer buf) {
@@ -43,10 +59,22 @@ int libpolhemus_recv_raw(uint8_t handle_idx, Buffer buf) {
     return handle.recv_raw(buf);
 }
 
-int libpolhemus_send_raw(uint8_t handle_idx, Buffer buf) {
+int libpolhemus_check_connection_att(uint8_t handle_idx, uint8_t attempts) {
     CHECK_H(handle_idx, handle, -10);
 
-    return handle.send_raw(buf);
+    return handle.check_connection(attempts);
+}
+
+int libpolhemus_check_connection(uint8_t handle_idx) {
+    CHECK_H(handle_idx, handle, -10);
+
+    return handle.check_connection();
+}
+
+int libpolhemus_send_cmd(uint8_t handle_idx, Buffer cmd, Buffer resp) {
+    CHECK_H(handle_idx, handle, -10);
+
+    return handle.send_cmd(cmd, resp);
 }
 
 void libpolhemus_close(uint8_t handle_idx) {

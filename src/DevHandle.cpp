@@ -53,42 +53,39 @@ int DevHandle::send_raw(Buffer buf) const {
 }
 
 int DevHandle::check_connection(uint8_t attempts) const {
-    auto cmd = Buffer{"\r", 1};
-    auto resp =
-        Buffer{std::unique_ptr<unsigned char[]>(new unsigned char[128]), 128};
+    auto cr = reinterpret_cast<unsigned char*>(const_cast<char*>("\r"));
+    auto cmd = Buffer{cr, 1};
+    auto resp_buf = std::unique_ptr<unsigned char[]>(new unsigned char[128]);
+    auto resp = Buffer{resp_buf.get(), 128};
     int err = 0;
 
     // Send useless command, await response
     // Try a total of 'attempts' times before giving up
     int i = 0;
     do {
-        i++;
+        if (++i == attempts) return -1;
         if (send_raw(cmd) <= 0) continue;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         err = recv_raw(resp);
-    } while (err <= 0 && i < attempts);
-
-    if (err <= 0) return -1;
+    } while (err <= 0);
 
     i = 0;
 
     // Clear out the ingress buffer
     do {
-        i++;
+        if (++i == attempts) return -2;
         err = recv_raw(resp);
-    } while (err != LIBUSB_ERROR_TIMEOUT && i < attempts);
-
-    if (err != LIBUSB_ERROR_TIMEOUT) return -1;
+    } while (err != 1);
 
     return 0;
 }
 
 int DevHandle::send_cmd(Buffer cmd, Buffer resp) const {
     return send_buf(cmd, resp,
-                    cmd.buf && cmd.buf[0] != '\r' && cmd.buf[0] != 'p' &&
-                        cmd.buf[0] != 'P');
+                    cmd.data && cmd.data[0] != '\r' && cmd.data[0] != 'p' &&
+                        cmd.data[0] != 'P');
 }
 
 void DevHandle::close() {
@@ -115,7 +112,8 @@ int DevHandle::send_buf(Buffer cmd, Buffer resp, bool add_cr) const {
     }
 
     if (add_cr) {
-        int err = send_raw({"\r", 1});
+        auto cr = reinterpret_cast<unsigned char*>(const_cast<char*>("\r"));
+        int err = send_raw(Buffer{cr, 1});
         if (err != 1) return err;
     }
 
