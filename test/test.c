@@ -33,9 +33,9 @@
 #define CHECKF(str) CHECK2(str, FATAL)
 
 int main(void) {
-    libpolhemus_device_handle* handle = NULL;
-    int r = 0;
+    uint8_t handle_idx;
     uint8_t* buf = malloc(BUF_SIZE * sizeof(uint8_t));
+    int r = 0;
 
     // Init //
     r = libpolhemus_init();
@@ -70,8 +70,7 @@ int main(void) {
             printf("SUCCESS!\n");
 
         r = libpolhemus_rcv(handle, buf, BUF_SIZE, &rcvd, DEF_TIMEOUT);
-        if (r < 0)
-            FAIL("receive", r);
+        if (r < 0) FAIL("receive", r);
 
         printf("Received %d bytes\n", rcvd);
 
