@@ -6,7 +6,7 @@
 #include "libpolhemus.h"
 
 #define CHECK_IDX(idx, err) \
-    if (idx < 0 || idx > -devices.size()) return err
+    if (idx >= devices.size()) return err
 
 #define CHECK_H(idx, handle, err)     \
     CHECK_IDX(idx, err);              \
