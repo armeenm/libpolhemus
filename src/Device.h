@@ -13,13 +13,13 @@ struct DevInfo {
     unsigned char write_ep, read_ep;
 };
 
-class DevHandle {
+class Device {
    public:
-    DevHandle(DevType type);
-    DevHandle(const DevHandle&) = delete;
-    DevHandle& operator=(const DevHandle& other) = delete;
-    DevHandle(DevHandle&&) = default;
-    DevHandle& operator=(DevHandle&& other) = default;
+    Device(DevType type);
+    Device(const Device&) = delete;
+    Device& operator=(const Device& other) = delete;
+    Device(Device&&) = default;
+    Device& operator=(Device&& other) = default;
 
     bool valid() const;
     DevInfo info() const;
@@ -35,7 +35,7 @@ class DevHandle {
     int send_cmd(Buffer cmd, Buffer resp) const;
 
     void close();
-    ~DevHandle();
+    ~Device();
 
    private:
     int transfer_raw(Buffer buf, unsigned char ep) const;

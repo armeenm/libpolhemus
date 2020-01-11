@@ -1,13 +1,12 @@
-#include "DevHandle.h"
-
 #include <chrono>
 #include <cstdint>
 #include <thread>
 #include <unordered_map>
 
+#include "Device.h"
 #include "libpolhemus.h"
 
-DevHandle::DevHandle(DevType type)
+Device::Device(DevType type)
     : _valid(false), _info(dev_type_info_map.at(type)), _timeout(50) {
     libusb_device** list;
     libusb_device* found = nullptr;
@@ -37,22 +36,22 @@ DevHandle::DevHandle(DevType type)
     libusb_free_device_list(list, 1);
 }
 
-bool DevHandle::valid() const { return _valid; }
+bool Device::valid() const { return _valid; }
 
-DevInfo DevHandle::info() const { return _info; }
+DevInfo Device::info() const { return _info; }
 
-unsigned int DevHandle::timeout() const { return _timeout; }
-void DevHandle::timeout(unsigned int timeout) { _timeout = timeout; }
+unsigned int Device::timeout() const { return _timeout; }
+void Device::timeout(unsigned int timeout) { _timeout = timeout; }
 
-int DevHandle::recv_raw(Buffer buf) const {
+int Device::recv_raw(Buffer buf) const {
     return transfer_raw(buf, _info.read_ep);
 }
 
-int DevHandle::send_raw(Buffer buf) const {
+int Device::send_raw(Buffer buf) const {
     return transfer_raw(buf, _info.write_ep);
 }
 
-int DevHandle::check_connection(uint8_t attempts) const {
+int Device::check_connection(uint8_t attempts) const {
     auto cr = reinterpret_cast<unsigned char*>(const_cast<char*>("\r"));
     auto cmd = Buffer{cr, 1};
     auto resp_buf = std::unique_ptr<unsigned char[]>(new unsigned char[128]);
@@ -82,22 +81,22 @@ int DevHandle::check_connection(uint8_t attempts) const {
     return 0;
 }
 
-int DevHandle::send_cmd(Buffer cmd, Buffer resp) const {
+int Device::send_cmd(Buffer cmd, Buffer resp) const {
     return send_buf(cmd, resp,
                     cmd.data && cmd.data[0] != '\r' && cmd.data[0] != 'p' &&
                         cmd.data[0] != 'P');
 }
 
-void DevHandle::close() {
+void Device::close() {
     if (_valid) {
         libusb_close(_handle);
         _valid = false;
     }
 }
 
-DevHandle::~DevHandle() { close(); }
+Device::~Device() { close(); }
 
-int DevHandle::transfer_raw(Buffer buf, unsigned char ep) const {
+int Device::transfer_raw(Buffer buf, unsigned char ep) const {
     int transferred;
     int err = libusb_bulk_transfer(_handle, ep, buf.data, buf.len, &transferred,
                                    _timeout);
@@ -105,7 +104,7 @@ int DevHandle::transfer_raw(Buffer buf, unsigned char ep) const {
     return err ? err < 0 : transferred;
 }
 
-int DevHandle::send_buf(Buffer cmd, Buffer resp, bool add_cr) const {
+int Device::send_buf(Buffer cmd, Buffer resp, bool add_cr) const {
     for (int i = 0; i < cmd.len; i++) {
         int err = send_raw({cmd.data + i, 1});
         if (err != 1) return err;
