@@ -3,89 +3,74 @@
 #include <vector>
 
 #include "Device.h"
-#include "libpolhemus.h"
-
-#define CHECK_IDX(idx, err) \
-    if (idx >= devices.size()) return err
-
-#define CHECK_H(idx, handle, err)  \
-    CHECK_IDX(idx, err);           \
-    Device& handle = devices[idx]; \
-    if (!handle.valid()) return err
+#include "export.h"
 
 std::vector<Device> devices;
 
-using dev_handle = libpolhemus_device_handle;
+using libpolhemus_device_handle = Device;
+using libpolhemus_devtype = DevType;
+using libpolhemus_Buffer = Buffer;
 
 int libpolhemus_init() { return libusb_init(nullptr); }
 
-int libpolhemus_open(DevType dev_type, uint8_t* handle_idx) {
-    devices.emplace_back(dev_type);
-    if (!devices.back().valid()) {
-        devices.pop_back();
+int libpolhemus_open(DevType dev_type, Device** handle) {
+    try {
+        *handle = new Device(dev_type);
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to open device: " << e.what() << '\n';
         return -1;
     }
+}
 
-    *handle_idx = devices.size() - 1;
+int libpolhemus_get_timeout(const Device* const handle, unsigned int* timeout) {
+    if (!handle) return -1;
+
+    *timeout = handle->timeout();
 
     return 0;
 }
 
-bool libpolhemus_valid(dev_handle* handle) {
-    CHECK_H(handle_idx, handle, 0);
+int libpolhemus_set_timeout(Device* const handle, unsigned int timeout) {
+    if (!handle) return -1;
 
-    return handle.valid();
+    handle->timeout(timeout);
+
+    return 0;
 }
 
-unsigned int libpolhemus_get_timeout(dev_handle* handle) {
-    CHECK_H(handle_idx, handle, -10);
+int libpolhemus_send_raw(Device* handle, const Buffer* const buf) {
+    if (!handle) return -1;
 
-    return handle.timeout();
+    return handle->send_raw(*buf);
 }
 
-void libpolhemus_set_timeout(dev_handle* handle, unsigned int timeout) {
-    CHECK_H(handle_idx, handle, void());
+int libpolhemus_recv_raw(Device* handle, Buffer* buf) {
+    if (!handle) return -1;
 
-    handle.timeout(timeout);
+    return handle->recv_raw(buf);
 }
 
-int libpolhemus_send_raw(dev_handle* handle, Buffer buf) {
-    CHECK_H(handle_idx, handle, -10);
+int libpolhemus_check_connection_att(Device* handle, unsigned int attempts) {
+    if (!handle) return -1;
 
-    return handle.send_raw(buf);
+    return handle->check_connection(attempts);
 }
 
-int libpolhemus_recv_raw(dev_handle* handle, Buffer buf) {
-    CHECK_H(handle_idx, handle, -10);
+int libpolhemus_check_connection(Device* handle) {
+    if (!handle) return -1;
 
-    return handle.recv_raw(buf);
+    return handle->check_connection();
 }
 
-int libpolhemus_check_connection_att(dev_handle* handle, uint8_t attempts) {
-    CHECK_H(handle_idx, handle, -10);
+int libpolhemus_send_cmd(Device* handle, const Buffer* const cmd,
+                         Buffer* resp) {
+    if (!handle) return -1;
 
-    return handle.check_connection(attempts);
+    return handle->send_cmd(*cmd, resp);
 }
 
-int libpolhemus_check_connection(dev_handle* handle) {
-    CHECK_H(handle_idx, handle, -10);
-
-    return handle.check_connection();
+void libpolhemus_close(Device* handle) {
+    if (handle) delete handle;
 }
 
-int libpolhemus_send_cmd(dev_handle* handle, Buffer cmd, Buffer resp) {
-    CHECK_H(handle_idx, handle, -10);
-
-    return handle.send_cmd(cmd, resp);
-}
-
-void libpolhemus_close(dev_handle* handle) {
-    CHECK_H(handle_idx, handle, void());
-
-    handle.close();
-}
-
-void libpolhemus_exit() {
-    devices.clear();
-    libusb_exit(nullptr);
-}
+void libpolhemus_exit() { libusb_exit(nullptr); }

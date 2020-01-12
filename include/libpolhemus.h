@@ -1,44 +1,43 @@
-#pragma once
+#ifndef LIBPOLHEMUS_H
+#define LIBPOLHEMUS_H
 
-#include <libusb-1.0/libusb.h>
-#include <stdbool.h>
-#include <stdint.h>
+/* Structures */
 
-#define DEVS PATRIOT, PATRIOT_HS
+typedef struct libpolhemus_device_handle libpolhemus_device_handle;
 
-#ifdef __cplusplus
-extern "C" {
-enum class DevType { DEVS };
-#else
-typedef enum DevType { DEVS } DevType;
-#endif
+typedef enum libpolhemus_devtype { PATRIOT, PATRIOT_HS } libpolhemus_devtype;
 
-typedef struct Buffer {
+typedef struct libpolhemus_buffer {
     unsigned char* data;
     int len;
-} Buffer;
+} libpolhemus_buffer;
+
+/* Functions */
 
 int libpolhemus_init();
 
-int libpolhemus_open(DevType dev_type, uint8_t* handle_idx);
+int libpolhemus_open(libpolhemus_devtype dev_type,
+                     libpolhemus_device_handle* handle);
 
-bool libpolhemus_valid(uint8_t handle_idx);
+unsigned int libpolhemus_get_timeout(
+    const libpolhemus_device_handle* const handle);
+void libpolhemus_set_timeout(libpolhemus_device_handle* const handle,
+                             unsigned int timeout);
 
-unsigned int libpolhemus_get_timeout(uint8_t handle_idx);
-void libpolhemus_set_timeout(uint8_t handle_idx, unsigned int timeout);
+int libpolhemus_send_raw(libpolhemus_device_handle* handle,
+                         libpolhemus_buffer buf);
+int libpolhemus_recv_raw(libpolhemus_device_handle* handle,
+                         libpolhemus_buffer buf);
 
-int libpolhemus_send_raw(uint8_t handle_idx, Buffer buf);
-int libpolhemus_recv_raw(uint8_t handle_idx, Buffer buf);
+int libpolhemus_check_connection_att(libpolhemus_device_handle* handle,
+                                     unsigned int attempts);
+int libpolhemus_check_connection(libpolhemus_device_handle* handle);
 
-int libpolhemus_check_connection_att(uint8_t handle_idx, uint8_t attempts);
-int libpolhemus_check_connection(uint8_t handle_idx);
+int libpolhemus_send_cmd(libpolhemus_device_handle* handle,
+                         libpolhemus_buffer cmd, libpolhemus_buffer resp);
 
-int libpolhemus_send_cmd(uint8_t handle_idx, Buffer cmd, Buffer resp);
-
-void libpolhemus_close(uint8_t handle_idx);
+void libpolhemus_close(libpolhemus_device_handle* handle);
 
 void libpolhemus_exit();
 
-#ifdef __cplusplus
-}
-#endif
+#endif /* LIBPOLHEMUS_H */
