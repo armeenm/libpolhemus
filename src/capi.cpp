@@ -4,9 +4,6 @@
 #include <iostream>
 #include <vector>
 
-extern "C" {
-#include "libpolhemus.h"
-}
 #include "libpolhemus.hpp"
 
 using namespace polhemus;
@@ -36,38 +33,6 @@ int libpolhemus_get_name(DevHandle* handle, const char** name) {
     if (!handle) return -1;
 
     *name = handle->name().c_str();
-
-    return 0;
-}
-
-int libpolhemus_get_vid(DevHandle* handle, std::uint16_t* vid) {
-    if (!handle) return -1;
-
-    *vid = handle->vid();
-
-    return 0;
-}
-
-int libpolhemus_get_pid(DevHandle* handle, std::uint16_t* pid) {
-    if (!handle) return -1;
-
-    *pid = handle->pid();
-
-    return 0;
-}
-
-int libpolhemus_get_write_ep(DevHandle* handle, unsigned char* write_ep) {
-    if (!handle) return -1;
-
-    *write_ep = handle->write_ep();
-
-    return 0;
-}
-
-int libpolhemus_get_read_ep(DevHandle* handle, unsigned char* read_ep) {
-    if (!handle) return -1;
-
-    *read_ep = handle->read_ep();
 
     return 0;
 }

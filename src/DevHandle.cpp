@@ -58,14 +58,6 @@ DevHandle::~DevHandle() { libusb_close(impl_->handle); }
 
 DevType DevHandle::dev_type() const noexcept { return impl_->info.dev_type; }
 const std::string& DevHandle::name() const noexcept { return impl_->info.name; }
-std::uint16_t DevHandle::vid() const noexcept { return impl_->info.vid; }
-std::uint16_t DevHandle::pid() const noexcept { return impl_->info.pid; }
-unsigned char DevHandle::write_ep() const noexcept {
-    return impl_->info.write_ep;
-}
-unsigned char DevHandle::read_ep() const noexcept {
-    return impl_->info.read_ep;
-}
 unsigned int DevHandle::timeout() const noexcept { return impl_->timeout; }
 
 // }}}
