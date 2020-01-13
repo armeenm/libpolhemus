@@ -19,8 +19,8 @@ class DevHandle {
     ~DevHandle();
     DevHandle(const DevHandle&) = delete;
     DevHandle& operator=(const DevHandle&) = delete;
-    DevHandle(DevHandle&&) = default;
-    DevHandle& operator=(DevHandle&&) = default;
+    DevHandle(DevHandle&&) noexcept = default;
+    DevHandle& operator=(DevHandle&&) noexcept = default;
 
     [[nodiscard]] DevType dev_type() const noexcept;
     [[nodiscard]] const std::string& name() const noexcept;

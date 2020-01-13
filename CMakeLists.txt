@@ -3,7 +3,7 @@ project(polhemus)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "-Wshadow -Wall -Wextra -pedantic -pipe")
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_FLAGS ${CMAKE_CXX_FLAGS}) 
 
 # Library
