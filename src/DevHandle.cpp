@@ -7,6 +7,8 @@
 #include "DevHandleImpl.h"
 #include "libpolhemus.hpp"
 
+namespace polhemus {
+
 /***** Ctors *****/
 // {{{
 
@@ -126,3 +128,5 @@ int DevHandle::recv_raw(Buffer* buf) const noexcept {
 }
 
 // }}}
+
+}  // namespace polhemus

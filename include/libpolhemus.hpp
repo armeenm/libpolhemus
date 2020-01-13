@@ -4,21 +4,23 @@
 #include <memory>
 #include <string>
 
-enum class DevType { PATRIOT, PATRIOT_HS };
+namespace polhemus {
 
-struct Buffer {
-    unsigned char* data;
-    int len;
-};
+namespace internal {
+#include "libpolhemus_common.h"
+}  // namespace internal
+
+using DevType = internal::libpolhemus_device_type;
+using Buffer = internal::libpolhemus_buffer;
 
 class DevHandle {
    public:
-    DevHandle(DevType type, unsigned int timeout = 50);
+    explicit DevHandle(DevType type, unsigned int timeout = 50);
     ~DevHandle();
     DevHandle(const DevHandle&) = delete;
-    DevHandle& operator=(const DevHandle& other) = delete;
+    DevHandle& operator=(const DevHandle&) = delete;
     DevHandle(DevHandle&&) = default;
-    DevHandle& operator=(DevHandle&& other) = default;
+    DevHandle& operator=(DevHandle&&) = default;
 
     [[nodiscard]] DevType dev_type() const noexcept;
     [[nodiscard]] const std::string& name() const noexcept;
@@ -41,3 +43,5 @@ class DevHandle {
     class Impl;
     std::unique_ptr<Impl> impl_;
 };
+
+}  // namespace polhemus

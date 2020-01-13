@@ -1,5 +1,7 @@
 #include "DevHandleImpl.h"
 
+namespace polhemus {
+
 DevHandle::Impl::Impl(DevType type) : info(dev_type_info_map_.at(type)) {}
 
 int DevHandle::Impl::transfer_raw(Buffer* buf, unsigned char ep) const
@@ -44,3 +46,5 @@ const std::unordered_map<DevType, DevHandle::Impl::DevInfo>
          {DevType::PATRIOT_HS, "High Speed Patriot", 0x0f44, 0xef20, 0x04,
           0x88}},
 };
+
+}  // namespace polhemus

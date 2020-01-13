@@ -6,6 +6,8 @@
 
 #include "libpolhemus.hpp"
 
+namespace polhemus {
+
 class DevHandle::Impl {
    public:
     struct DevInfo {
@@ -30,3 +32,5 @@ class DevHandle::Impl {
    private:
     static const std::unordered_map<DevType, DevInfo> dev_type_info_map_;
 };
+
+}  // namespace polhemus

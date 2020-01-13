@@ -7,22 +7,25 @@
 extern "C" {
 #include "libpolhemus.h"
 }
-
 #include "libpolhemus.hpp"
+#include "libpolhemus_macro.h"
 
-int libpolhemus_init() { return libusb_init(nullptr); }
+using namespace polhemus;
 
-int libpolhemus_open(DevType dev_type, DevHandle** handle) {
+int PLHM_ADD_PREFIX_(init)() { return libusb_init(nullptr); }
+
+int PLHM_ADD_PREFIX_(open)(DevType dev_type, DevHandle** handle) {
     try {
         *handle = new DevHandle(dev_type);
     } catch (const std::exception& e) {
         std::cerr << "Failed to open device: " << e.what() << '\n';
         return -1;
     }
+
+    return 0;
 }
 
-int libpolhemus_get_timeout(const DevHandle* const handle,
-                            unsigned int* timeout) {
+int PLHM_ADD_PREFIX_(get_timeout)(DevHandle* handle, unsigned int* timeout) {
     if (!handle) return -1;
 
     *timeout = handle->timeout();
@@ -30,7 +33,7 @@ int libpolhemus_get_timeout(const DevHandle* const handle,
     return 0;
 }
 
-int libpolhemus_set_timeout(DevHandle* const handle, unsigned int timeout) {
+int PLHM_ADD_PREFIX_(set_timeout)(DevHandle* handle, unsigned int timeout) {
     if (!handle) return -1;
 
     handle->timeout(timeout);
@@ -38,39 +41,40 @@ int libpolhemus_set_timeout(DevHandle* const handle, unsigned int timeout) {
     return 0;
 }
 
-int libpolhemus_send_raw(DevHandle* handle, const Buffer* const buf) {
+int PLHM_ADD_PREFIX_(send_raw)(DevHandle* handle, const Buffer* const buf) {
     if (!handle) return -1;
 
     return handle->send_raw(*buf);
 }
 
-int libpolhemus_recv_raw(DevHandle* handle, Buffer* buf) {
+int PLHM_ADD_PREFIX_(recv_raw)(DevHandle* handle, Buffer* buf) {
     if (!handle) return -1;
 
     return handle->recv_raw(buf);
 }
 
-int libpolhemus_check_connection_att(DevHandle* handle, unsigned int attempts) {
+int PLHM_ADD_PREFIX_(check_connection_att)(DevHandle* handle,
+                                           unsigned int attempts) {
     if (!handle) return -1;
 
     return handle->check_connection(attempts);
 }
 
-int libpolhemus_check_connection(DevHandle* handle) {
+int PLHM_ADD_PREFIX_(check_connection)(DevHandle* handle) {
     if (!handle) return -1;
 
     return handle->check_connection();
 }
 
-int libpolhemus_send_cmd(DevHandle* handle, const Buffer* const cmd,
-                         Buffer* resp) {
+int PLHM_ADD_PREFIX_(send_cmd)(DevHandle* handle, const Buffer* const cmd,
+                               Buffer* resp) {
     if (!handle) return -1;
 
     return handle->send_cmd(*cmd, resp);
 }
 
-void libpolhemus_close(DevHandle* handle) {
-    if (handle) delete handle;
-}
+void PLHM_ADD_PREFIX_(close)(DevHandle* handle) { delete handle; }
 
-void libpolhemus_exit() { libusb_exit(nullptr); }
+void PLHM_ADD_PREFIX_(exit)() { libusb_exit(nullptr); }
+
+#include "libpolhemus_macro.h"
