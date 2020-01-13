@@ -6,12 +6,14 @@
 
 namespace polhemus {
 
-namespace internal {
-#include "libpolhemus_common.h"
-}  // namespace internal
+extern "C" {
+enum DevType { PATRIOT, PATRIOT_HS };
 
-using DevType = internal::libpolhemus_device_type;
-using Buffer = internal::libpolhemus_buffer;
+struct Buffer {
+    unsigned char* data;
+    int len;
+};
+}
 
 class DevHandle {
    public:
