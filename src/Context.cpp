@@ -1,4 +1,6 @@
-#include "ContextImpl.h"
+#include "Context.h"
+
+#include "libpolhemus.hpp"
 
 namespace polhemus {
 
