@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -15,15 +14,13 @@ struct Buffer {
 };
 }
 
-class Context {
-   private:
-    class Impl;
-    std::unique_ptr<Impl> impl_;
-};
+class Context;
+
+[[nodiscard]] std::unique_ptr<Context> context();
 
 class DevHandle {
    public:
-    DevHandle(DevType type, unsigned int timeout = 50);
+    DevHandle(Context* ctx, DevType type, unsigned int timeout = 50);
     ~DevHandle();
     DevHandle(const DevHandle&) = delete;
     DevHandle& operator=(const DevHandle&) = delete;

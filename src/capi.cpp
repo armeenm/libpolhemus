@@ -1,18 +1,26 @@
-#include <libusb-1.0/libusb.h>
-
 #include <cstdint>
 #include <iostream>
 #include <vector>
 
+#include "Context.h"
 #include "libpolhemus.hpp"
 
 using namespace polhemus;
 
-int libpolhemus_init() { return libusb_init(nullptr); }
+int libpolhemus_init(Context** ctx) {
+    try {
+        *ctx = new Context;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to open device: " << e.what() << '\n';
+        return -1;
+    }
+
+    return 0;
+}
 
 int libpolhemus_open(DevType dev_type, DevHandle** handle) {
     try {
-        *handle = new DevHandle(dev_type);
+        *handle = new DevHandle(nullptr, dev_type);
     } catch (const std::exception& e) {
         std::cerr << "Failed to open device: " << e.what() << '\n';
         return -1;
@@ -85,4 +93,4 @@ int libpolhemus_send_cmd(DevHandle* handle, const Buffer* cmd, Buffer* resp) {
 
 void libpolhemus_close(DevHandle* handle) { delete handle; }
 
-void libpolhemus_exit() { libusb_exit(nullptr); }
+void libpolhemus_exit(Context* ctx) { delete ctx; }

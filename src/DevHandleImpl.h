@@ -4,6 +4,7 @@
 
 #include <unordered_map>
 
+#include "Context.h"
 #include "libpolhemus.hpp"
 
 namespace polhemus {
@@ -17,7 +18,7 @@ class DevHandle::Impl {
         unsigned char write_ep, read_ep;
     };
 
-    Impl(DevType type);
+    Impl(Context* ctx, DevType type, unsigned int timeout_in);
 
     int transfer_raw(Buffer* buf, unsigned char ep) const noexcept;
     int send_buf(const Buffer& cmd, Buffer* resp, bool add_cr) const noexcept;
@@ -25,12 +26,15 @@ class DevHandle::Impl {
     int send_raw(const Buffer& buf) const noexcept;
     int recv_raw(Buffer* buf) const noexcept;
 
+    libusb_context* lctx() const noexcept;
+
     const DevInfo info;
     libusb_device_handle* handle;
     unsigned int timeout;
 
    private:
     static const std::unordered_map<DevType, DevInfo> dev_type_info_map_;
+    Context ctx_;
 };
 
 }  // namespace polhemus

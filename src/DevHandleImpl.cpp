@@ -1,8 +1,13 @@
 #include "DevHandleImpl.h"
 
+#include "Context.h"
+
 namespace polhemus {
 
-DevHandle::Impl::Impl(DevType type) : info(dev_type_info_map_.at(type)) {}
+DevHandle::Impl::Impl(Context* ctx, DevType type, unsigned int timeout_in)
+    : info(dev_type_info_map_.at(type)),
+      timeout(timeout_in),
+      ctx_(ctx ? *ctx : Context()) {}
 
 int DevHandle::Impl::transfer_raw(Buffer* buf, unsigned char ep) const
     noexcept {
@@ -36,6 +41,8 @@ int DevHandle::Impl::recv_raw(Buffer* buf) const noexcept {
 int DevHandle::Impl::send_raw(const Buffer& buf) const noexcept {
     return transfer_raw(const_cast<Buffer*>(&buf), info.write_ep);
 }
+
+libusb_context* DevHandle::Impl::lctx() const noexcept { return ctx_.lctx; }
 
 const std::unordered_map<DevType, DevHandle::Impl::DevInfo>
     DevHandle::Impl::dev_type_info_map_ = {

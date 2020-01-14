@@ -12,15 +12,14 @@ namespace polhemus {
 /***** Ctors *****/
 // {{{
 
-DevHandle::DevHandle(DevType type, unsigned int timeout)
-    : impl_(new Impl(type)) {
-    impl_->timeout = timeout;
-
+DevHandle::DevHandle(Context* ctx, const DevType type,
+                     const unsigned int timeout)
+    : impl_(new Impl(ctx, type, timeout)) {
     libusb_device** dev_list;
     libusb_device* found = nullptr;
     int err = 0;
 
-    ssize_t cnt = libusb_get_device_list(nullptr, &dev_list);
+    ssize_t cnt = libusb_get_device_list(impl_->lctx(), &dev_list);
     if (cnt < 0) throw std::runtime_error("Failed to get device list");
 
     for (int i = 0; i < cnt; i++) {
