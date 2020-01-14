@@ -7,9 +7,16 @@
 
 using namespace polhemus;
 
-int libpolhemus_init(Context** ctx) {
+extern "C" {
+#include "libpolhemus.h"
+
+struct libpolhemus_device_handle {
+    void* handle;
+};
+
+int libpolhemus_init(libpolhemus_context** ctx) {
     try {
-        *ctx = new Context;
+        *ctx = reinterpret_cast<libpolhemus_context*>(new Context);
     } catch (const std::exception& e) {
         std::cerr << "Failed to open device: " << e.what() << '\n';
         return -1;
@@ -18,9 +25,11 @@ int libpolhemus_init(Context** ctx) {
     return 0;
 }
 
-int libpolhemus_open(DevType dev_type, DevHandle** handle) {
+int libpolhemus_open(libpolhemus_context* ctx, libpolhemus_device_type dev_type,
+                     libpolhemus_device_handle** handle) {
     try {
-        *handle = new DevHandle(nullptr, dev_type);
+        *handle = reinterpret_cast<libpolhemus_device_handle*>(new DevHandle(
+            reinterpret_cast<Context*>(ctx), static_cast<DevType>(dev_type)));
     } catch (const std::exception& e) {
         std::cerr << "Failed to open device: " << e.what() << '\n';
         return -1;
@@ -29,68 +38,85 @@ int libpolhemus_open(DevType dev_type, DevHandle** handle) {
     return 0;
 }
 
-int libpolhemus_get_dev_type(DevHandle* handle, DevType* dev_type) {
+int libpolhemus_get_dev_type(libpolhemus_device_handle* handle,
+                             libpolhemus_device_type* dev_type) {
     if (!handle) return -1;
 
-    *dev_type = handle->dev_type();
+    *dev_type = static_cast<libpolhemus_device_type>(
+        reinterpret_cast<DevHandle*>(handle)->dev_type());
 
     return 0;
 }
 
-int libpolhemus_get_name(DevHandle* handle, const char** name) {
+int libpolhemus_get_name(libpolhemus_device_handle* handle, const char** name) {
     if (!handle) return -1;
 
-    *name = handle->name().c_str();
+    *name = reinterpret_cast<DevHandle*>(handle)->name().c_str();
 
     return 0;
 }
 
-int libpolhemus_get_timeout(DevHandle* handle, unsigned int* timeout) {
+int libpolhemus_get_timeout(libpolhemus_device_handle* handle,
+                            unsigned int* timeout) {
     if (!handle) return -1;
 
-    *timeout = handle->timeout();
+    *timeout = reinterpret_cast<DevHandle*>(handle)->timeout();
 
     return 0;
 }
 
-int libpolhemus_set_timeout(DevHandle* handle, unsigned int timeout) {
+int libpolhemus_set_timeout(libpolhemus_device_handle* handle,
+                            const unsigned int timeout) {
     if (!handle) return -1;
 
-    handle->timeout(timeout);
+    reinterpret_cast<DevHandle*>(handle)->timeout(timeout);
 
     return 0;
 }
 
-int libpolhemus_send_raw(DevHandle* handle, const Buffer* buf) {
+int libpolhemus_send_raw(libpolhemus_device_handle* handle,
+                         const libpolhemus_buffer* buf) {
     if (!handle) return -1;
 
-    return handle->send_raw(*buf);
+    return reinterpret_cast<DevHandle*>(handle)->send_raw(
+        *reinterpret_cast<const Buffer*>(buf));
 }
 
-int libpolhemus_recv_raw(DevHandle* handle, Buffer* buf) {
+int libpolhemus_recv_raw(libpolhemus_device_handle* handle,
+                         libpolhemus_buffer* buf) {
     if (!handle) return -1;
 
-    return handle->recv_raw(buf);
+    return reinterpret_cast<DevHandle*>(handle)->recv_raw(
+        reinterpret_cast<Buffer*>(buf));
 }
 
-int libpolhemus_check_connection_att(DevHandle* handle, unsigned int attempts) {
+int libpolhemus_check_connection_att(libpolhemus_device_handle* handle,
+                                     unsigned int attempts) {
     if (!handle) return -1;
 
-    return handle->check_connection(attempts);
+    return reinterpret_cast<DevHandle*>(handle)->check_connection(attempts);
 }
 
-int libpolhemus_check_connection(DevHandle* handle) {
+int libpolhemus_check_connection(libpolhemus_device_handle* handle) {
     if (!handle) return -1;
 
-    return handle->check_connection();
+    return reinterpret_cast<DevHandle*>(handle)->check_connection();
 }
 
-int libpolhemus_send_cmd(DevHandle* handle, const Buffer* cmd, Buffer* resp) {
+int libpolhemus_send_cmd(libpolhemus_device_handle* handle,
+                         const libpolhemus_buffer* cmd,
+                         libpolhemus_buffer* resp) {
     if (!handle) return -1;
 
-    return handle->send_cmd(*cmd, resp);
+    return reinterpret_cast<DevHandle*>(handle)->send_cmd(
+        *reinterpret_cast<const Buffer*>(cmd), reinterpret_cast<Buffer*>(resp));
 }
 
-void libpolhemus_close(DevHandle* handle) { delete handle; }
+void libpolhemus_close(libpolhemus_device_handle* handle) {
+    delete reinterpret_cast<DevHandle*>(handle);
+}
 
-void libpolhemus_exit(Context* ctx) { delete ctx; }
+void libpolhemus_exit(libpolhemus_context* ctx) {
+    delete reinterpret_cast<Context*>(ctx);
+}
+}

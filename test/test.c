@@ -36,6 +36,7 @@
 #define CHECKFV(str, val) CHECK2(str, FATAL, val)
 
 int main(void) {
+    /*
     uint8_t handle_idx;
     int r = 0;
 
@@ -84,6 +85,7 @@ int main(void) {
     // Exit //
     libpolhemus_exit();
     PASS("exit");
+    */
 
     return 0;
 }
