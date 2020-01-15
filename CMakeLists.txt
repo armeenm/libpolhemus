@@ -13,6 +13,7 @@ target_include_directories(polhemus PRIVATE src include)
 target_link_libraries(polhemus usb-1.0)
 install(TARGETS polhemus DESTINATION lib)
 install(FILES include/libpolhemus.h DESTINATION include)
+install(FILES include/libpolhemus.hpp DESTINATION include)
 
 # Testing
 file(GLOB TST_C_SRCS "test/*.c")
