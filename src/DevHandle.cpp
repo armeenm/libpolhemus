@@ -19,10 +19,10 @@ DevHandle::DevHandle(Context* ctx, const DevType type,
     libusb_device* found = nullptr;
     int err = 0;
 
-    ssize_t cnt = libusb_get_device_list(impl_->lctx(), &dev_list);
+    const ssize_t cnt = libusb_get_device_list(impl_->lctx(), &dev_list);
     if (cnt < 0) throw std::runtime_error("Failed to get device list");
 
-    for (int i = 0; i < cnt; i++) {
+    for (ssize_t i = 0; i < cnt; i++) {
         libusb_device_descriptor desc;
         err = libusb_get_device_descriptor(dev_list[i], &desc);
         /* If we failed to get the descriptor, move on */
@@ -64,7 +64,7 @@ unsigned int DevHandle::timeout() const noexcept { return impl_->timeout; }
 /***** Mutators *****/
 // {{{
 
-void DevHandle::timeout(unsigned int timeout) noexcept {
+void DevHandle::timeout(const unsigned int timeout) noexcept {
     impl_->timeout = timeout;
 }
 
@@ -73,9 +73,9 @@ void DevHandle::timeout(unsigned int timeout) noexcept {
 /***** I/O *****/
 // {{{
 
-bool DevHandle::check_connection(unsigned int attempts) const noexcept {
-    auto cr = reinterpret_cast<unsigned char*>(const_cast<char*>("\r"));
-    auto cmd = Buffer{cr, 1};
+bool DevHandle::check_connection(const unsigned int attempts) const noexcept {
+    unsigned char cr[] = "\r";
+    const auto cmd = Buffer{cr, 1};
     auto resp_buf = std::unique_ptr<unsigned char[]>(new unsigned char[128]);
     auto resp = Buffer{resp_buf.get(), 128};
     int err = 0;
