@@ -10,10 +10,7 @@ using namespace polhemus;
 extern "C" {
 int libpolhemus_init(libpolhemus_context** ctx) {
     try {
-        auto tmp = new Context;
-        printf("Tmp: %p\n", reinterpret_cast<void*>(tmp));
-        printf("lctx: %p\n", reinterpret_cast<void*>(tmp->lctx()));
-        *ctx = reinterpret_cast<libpolhemus_context*>(tmp);
+        *ctx = conv(new Context);
     } catch (const std::exception& e) {
         std::cerr << "Failed to open device: " << e.what() << '\n';
         return -1;
