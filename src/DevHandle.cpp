@@ -37,15 +37,14 @@ DevHandle::DevHandle(Context* ctx, const DevType type,
         }
     }
 
-    if (err) throw std::runtime_error("Failed to find device");
-
-    if (found) err = libusb_open(found, &(impl_->handle));
-
-    /* Make sure we clean up the dev list */
-    libusb_free_device_list(dev_list, 1);
-
-    /* libusb_open failed */
-    if (err) throw std::runtime_error("Failed to open device");
+    if (found) {
+        err = libusb_open(found, &(impl_->handle));
+        libusb_free_device_list(dev_list, 1);
+        if (err) throw std::runtime_error("Failed to open device");
+    } else {
+        libusb_free_device_list(dev_list, 1);
+        throw std::runtime_error("Failed to find device");
+    }
 }
 
 DevHandle::~DevHandle() { libusb_close(impl_->handle); }

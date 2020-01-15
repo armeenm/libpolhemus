@@ -15,6 +15,9 @@ int libpolhemus_init(libpolhemus_context**);
 int libpolhemus_open(libpolhemus_context*, libpolhemus_device_type,
                      libpolhemus_device_handle**);
 
+int libpolhemus_get_device_type(libpolhemus_device_handle*,
+                                libpolhemus_device_type*);
+int libpolhemus_get_name(libpolhemus_device_handle*, const char** name);
 int libpolhemus_get_timeout(libpolhemus_device_handle*, unsigned int* timeout);
 
 int libpolhemus_set_timeout(libpolhemus_device_handle*, unsigned int timeout);

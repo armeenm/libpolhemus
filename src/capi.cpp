@@ -1,5 +1,6 @@
 #include "capi.h"
 
+#include <cstdio>
 #include <iostream>
 
 #include "Context.h"
@@ -9,7 +10,10 @@ using namespace polhemus;
 extern "C" {
 int libpolhemus_init(libpolhemus_context** ctx) {
     try {
-        *ctx = conv(new Context);
+        auto tmp = new Context;
+        printf("Tmp: %p\n", reinterpret_cast<void*>(tmp));
+        printf("lctx: %p\n", reinterpret_cast<void*>(tmp->lctx()));
+        *ctx = reinterpret_cast<libpolhemus_context*>(tmp);
     } catch (const std::exception& e) {
         std::cerr << "Failed to open device: " << e.what() << '\n';
         return -1;
@@ -31,8 +35,8 @@ int libpolhemus_open(libpolhemus_context* ctx,
     return 0;
 }
 
-int libpolhemus_get_dev_type(libpolhemus_device_handle* handle,
-                             libpolhemus_device_type* dev_type) {
+int libpolhemus_get_device_type(libpolhemus_device_handle* handle,
+                                libpolhemus_device_type* dev_type) {
     if (!handle) return -1;
 
     *dev_type = conv(conv(handle)->dev_type());
