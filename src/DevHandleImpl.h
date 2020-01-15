@@ -26,7 +26,7 @@ class DevHandle::Impl {
     int send_raw(const Buffer& buf) const noexcept;
     int recv_raw(Buffer* buf) const noexcept;
 
-    libusb_context* lctx() const noexcept;
+    [[nodiscard]] libusb_context* lctx() const noexcept;
 
     const DevInfo info;
     libusb_device_handle* handle;

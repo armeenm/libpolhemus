@@ -17,7 +17,10 @@ class Context {
     Context(Context&&) noexcept = default;
     Context& operator=(Context&&) noexcept = default;
 
-    libusb_context* lctx;
+    [[nodiscard]] libusb_context* lctx() const noexcept;
+
+   private:
+    libusb_context* lctx_;
 };
 
 }  // namespace polhemus

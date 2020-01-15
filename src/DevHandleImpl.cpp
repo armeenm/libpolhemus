@@ -42,7 +42,7 @@ int DevHandle::Impl::send_raw(const Buffer& buf) const noexcept {
     return transfer_raw(const_cast<Buffer*>(&buf), info.write_ep);
 }
 
-libusb_context* DevHandle::Impl::lctx() const noexcept { return ctx_.lctx; }
+libusb_context* DevHandle::Impl::lctx() const noexcept { return ctx_.lctx(); }
 
 const std::unordered_map<DevType, DevHandle::Impl::DevInfo>
     DevHandle::Impl::dev_type_info_map_ = {
