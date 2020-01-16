@@ -46,12 +46,10 @@ libusb_context* DevHandle::Impl::lctx() const noexcept { return ctx_.lctx(); }
 
 const std::unordered_map<DevType, DevHandle::Impl::DevInfo>
     DevHandle::Impl::dev_type_info_map_ = {
-        {DevType::PATRIOT,
-         {DevType::PATRIOT, "Patriot", 0x0f44, 0xef12, 0x02, 0x82}},
+        {PATRIOT, {PATRIOT, "Patriot", 0x0f44, 0xef12, 0x02, 0x82}},
 
-        {DevType::PATRIOT_HS,
-         {DevType::PATRIOT_HS, "High Speed Patriot", 0x0f44, 0xef20, 0x04,
-          0x88}},
+        {PATRIOT_HS,
+         {PATRIOT_HS, "High Speed Patriot", 0x0f44, 0xef20, 0x04, 0x88}},
 };
 
 }  // namespace polhemus
