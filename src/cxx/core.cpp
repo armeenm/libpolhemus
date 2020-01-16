@@ -3,8 +3,6 @@
 
 namespace polhemus {
 
-std::unique_ptr<Context> context() {
-    return std::unique_ptr<Context>(new Context);
-}
+std::unique_ptr<Context> context() { return std::unique_ptr<Context>(new Context); }
 
-}  // namespace polhemus
+} // namespace polhemus

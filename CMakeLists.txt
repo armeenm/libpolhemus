@@ -8,11 +8,11 @@ find_package(LibUSB 1.0 REQUIRED MODULE)
 
 option(FORCE_COLORED_OUTPUT
     "Always produce ANSI-colored output (GNU/Clang only)" 
-    FALSE)
+    OFF)
 
 option(STATIC_ANALYSIS
-    "Enable static analysis tools for enabled"
-    FALSE)
+    "Enable static analysis tools"
+    ON)
 
 if(${FORCE_COLORED_OUTPUT})
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -57,9 +57,8 @@ target_compile_features(polhemus
 set_target_properties(polhemus PROPERTIES CXX_EXTENSIONS OFF)
 
 if(${STATIC_ANALYSIS})
-    message(yay!)
     set_target_properties(polhemus PROPERTIES
-        CXX_CLANG_TIDY "clang-tidy;-checks=*"
+        CXX_CLANG_TIDY "clang-tidy;-checks=* -header-filter=.*"
         CXX_CPPCHECK "cppcheck;--std=c++11")
 endif()
 

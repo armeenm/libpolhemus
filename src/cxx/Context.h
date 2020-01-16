@@ -2,8 +2,6 @@
 
 #include <libusb-1.0/libusb.h>
 
-#include <memory>
-
 #include "libpolhemus.hpp"
 
 namespace polhemus {
@@ -17,10 +15,10 @@ class Context {
     Context(Context&&) noexcept = default;
     Context& operator=(Context&&) noexcept = default;
 
-    [[nodiscard]] libusb_context* lctx() const noexcept;
+    [[nodiscard]] auto lctx() const noexcept -> libusb_context*;
 
    private:
-    libusb_context* lctx_;
+    libusb_context* lctx_ = nullptr;
 };
 
 }  // namespace polhemus

@@ -9,8 +9,8 @@ extern "C" {
 enum DevType { PATRIOT, PATRIOT_HS };
 
 struct Buffer {
-    unsigned char* data;
-    int len;
+  unsigned char* data;
+  int len;
 };
 }
 
@@ -19,30 +19,30 @@ class Context;
 [[nodiscard]] std::unique_ptr<Context> context();
 
 class DevHandle {
-   public:
-    DevHandle(Context* ctx, DevType type, unsigned int timeout = 50);
-    ~DevHandle();
-    DevHandle(const DevHandle&) = delete;
-    DevHandle& operator=(const DevHandle&) = delete;
-    DevHandle(DevHandle&&) noexcept = default;
-    DevHandle& operator=(DevHandle&&) noexcept = default;
+public:
+  DevHandle(Context* ctx, DevType type, unsigned int timeout = 50);
+  ~DevHandle();
+  DevHandle(const DevHandle&) = delete;
+  DevHandle& operator=(const DevHandle&) = delete;
+  DevHandle(DevHandle&&) noexcept = default;
+  DevHandle& operator=(DevHandle&&) noexcept = default;
 
-    [[nodiscard]] DevType dev_type() const noexcept;
-    [[nodiscard]] const std::string& name() const noexcept;
-    [[nodiscard]] unsigned int timeout() const noexcept;
+  [[nodiscard]] DevType dev_type() const noexcept;
+  [[nodiscard]] const std::string& name() const noexcept;
+  [[nodiscard]] unsigned int timeout() const noexcept;
 
-    void timeout(unsigned int timeout) noexcept;
+  void timeout(unsigned int timeout) noexcept;
 
-    bool check_connection(unsigned int attempts = 10) const noexcept;
+  bool check_connection(unsigned int attempts = 10) const noexcept;
 
-    int send_cmd(const Buffer& cmd, Buffer* resp) const noexcept;
+  int send_cmd(const Buffer& cmd, Buffer* resp) const noexcept;
 
-    int send_raw(const Buffer& buf) const noexcept;
-    int recv_raw(Buffer* buf) const noexcept;
+  int send_raw(const Buffer& buf) const noexcept;
+  int recv_raw(Buffer* buf) const noexcept;
 
-   private:
-    class Impl;
-    std::unique_ptr<Impl> impl_;
+private:
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
 
-}  // namespace polhemus
+} // namespace polhemus

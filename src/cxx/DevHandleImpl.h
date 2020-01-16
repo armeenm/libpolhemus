@@ -10,31 +10,31 @@
 namespace polhemus {
 
 class DevHandle::Impl {
-   public:
-    struct DevInfo {
-        DevType dev_type;
-        std::string name;
-        std::uint16_t vid, pid;
-        unsigned char write_ep, read_ep;
-    };
+public:
+  struct DevInfo {
+    DevType dev_type;
+    std::string name;
+    std::uint16_t vid, pid;
+    unsigned char write_ep, read_ep;
+  };
 
-    Impl(Context* ctx, DevType type, unsigned int timeout_in);
+  Impl(Context* ctx, DevType type, unsigned int timeout_in);
 
-    int transfer_raw(Buffer* buf, unsigned char ep) const noexcept;
-    int send_buf(const Buffer& cmd, Buffer* resp, bool add_cr) const noexcept;
+  auto transfer_raw(Buffer* buf, unsigned char ep) const noexcept -> int;
+  auto send_buf(const Buffer& cmd, Buffer* resp, bool add_cr) const noexcept -> int;
 
-    int send_raw(const Buffer& buf) const noexcept;
-    int recv_raw(Buffer* buf) const noexcept;
+  auto send_raw(const Buffer& buf) const noexcept -> int;
+  auto recv_raw(Buffer* buf) const noexcept -> int;
 
-    [[nodiscard]] libusb_context* lctx() const noexcept;
+  [[nodiscard]] auto lctx() const noexcept -> libusb_context*;
 
-    const DevInfo info;
-    libusb_device_handle* handle;
-    unsigned int timeout;
+  const DevInfo info;
+  libusb_device_handle* handle;
+  unsigned int timeout;
 
-   private:
-    static const std::unordered_map<DevType, DevInfo> dev_type_info_map_;
-    Context ctx_;
+private:
+  static const std::unordered_map<DevType, DevInfo> dev_type_info_map_;
+  Context ctx_;
 };
 
-}  // namespace polhemus
+} // namespace polhemus
