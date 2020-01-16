@@ -24,7 +24,7 @@ file(GLOB CXX_SRCS
     "src/cxx/*.cpp")
 
 add_library(polhemus SHARED ${CXX_SRCS})
-add_library(Polhemus::Polhemus ALIAS polhemus)
+add_library(Polhemus::polhemus ALIAS polhemus)
 
 target_include_directories(polhemus
     PUBLIC
@@ -45,7 +45,10 @@ target_compile_features(polhemus
         cxx_auto_type
         cxx_nonstatic_member_init
         cxx_uniform_initialization)
-set_target_properties(polhemus PROPERTIES CXX_EXTENSIONS OFF)
+set_target_properties(polhemus
+    PROPERTIES
+        EXPORT_NAME Polhemus
+        CXX_EXTENSIONS OFF)
 
 if(${FORCE_COLORED_OUTPUT})
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -85,7 +88,7 @@ file(GLOB CAPI_SRCS
     "src/capi/*.cpp")
 
 add_library(polhemus_c SHARED ${CAPI_SRCS})
-add_library(Polhemus::CPolhemus ALIAS polhemus_c)
+add_library(Polhemus::polhemus_c ALIAS polhemus_c)
 
 target_include_directories(polhemus_c
     PUBLIC
@@ -107,7 +110,10 @@ target_compile_features(polhemus_c
         cxx_decltype
         cxx_nullptr
         cxx_constexpr)
-set_target_properties(polhemus_c PROPERTIES CXX_EXTENSIONS OFF)
+set_target_properties(polhemus_c
+    PROPERTIES
+        EXPORT_NAME CPolhemus
+        CXX_EXTENSIONS OFF)
 
 if(${FORCE_COLORED_OUTPUT})
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -123,7 +129,7 @@ include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Polhemus)
 
 install(TARGETS polhemus_c
-    EXPORT polhemus-c-targets
+    EXPORT polhemus-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
