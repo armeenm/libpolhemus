@@ -18,22 +18,22 @@ public:
     unsigned char write_ep, read_ep;
   };
 
-  Impl(Context* ctx, DevType type, unsigned int timeout_in);
+  Impl(Context* ctx, DevType type, unsigned int timeout);
 
   auto transfer_raw(Buffer* buf, unsigned char ep) const noexcept -> int;
-  auto send_buf(const Buffer& cmd, Buffer* resp, bool add_cr) const noexcept -> int;
+  auto send_buf(Buffer const& cmd, Buffer* resp, bool add_cr) const noexcept -> int;
 
-  auto send_raw(const Buffer& buf) const noexcept -> int;
+  auto send_raw(Buffer const& buf) const noexcept -> int;
   auto recv_raw(Buffer* buf) const noexcept -> int;
 
   [[nodiscard]] auto lctx() const noexcept -> libusb_context*;
 
-  const DevInfo info;
+  DevInfo const info;
   libusb_device_handle* handle;
   unsigned int timeout;
 
 private:
-  static const std::unordered_map<DevType, DevInfo> dev_type_info_map_;
+  static std::unordered_map<DevType, DevInfo> const dev_type_info_map_;
   Context ctx_;
 };
 

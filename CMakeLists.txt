@@ -60,7 +60,7 @@ endif()
 
 if(${STATIC_ANALYSIS})
     set_target_properties(polhemus PROPERTIES
-        CXX_CLANG_TIDY "clang-tidy;-checks=* -header-filter=.*"
+        CXX_CLANG_TIDY "clang-tidy;-checks=*;-header-filter=.*"
         CXX_CPPCHECK "cppcheck;--std=c++11")
 endif()
 
@@ -122,6 +122,13 @@ if(${FORCE_COLORED_OUTPUT})
         target_compile_options(polhemus_c PRIVATE -fcolor-diagnostics)
     endif()
 endif()
+
+if(${STATIC_ANALYSIS})
+    set_target_properties(polhemus PROPERTIES
+        CXX_CLANG_TIDY "clang-tidy;-checks=*;-header-filter=.*"
+        CXX_CPPCHECK "cppcheck;--std=c++17")
+endif()
+
 
 target_link_libraries(polhemus_c PRIVATE polhemus)
 

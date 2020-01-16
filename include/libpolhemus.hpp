@@ -16,29 +16,32 @@ struct Buffer {
 
 class Context;
 
-[[nodiscard]] std::unique_ptr<Context> context();
+[[nodiscard]] auto context() -> std::unique_ptr<Context>;
 
 class DevHandle {
 public:
   DevHandle(Context* ctx, DevType type, unsigned int timeout = 50);
-  ~DevHandle();
-  DevHandle(const DevHandle&) = delete;
-  DevHandle& operator=(const DevHandle&) = delete;
+
+  DevHandle(DevHandle const&) = delete;
   DevHandle(DevHandle&&) noexcept = default;
-  DevHandle& operator=(DevHandle&&) noexcept = default;
 
-  [[nodiscard]] DevType dev_type() const noexcept;
-  [[nodiscard]] const std::string& name() const noexcept;
-  [[nodiscard]] unsigned int timeout() const noexcept;
+  auto operator=(DevHandle const&) -> DevHandle& = delete;
+  auto operator=(DevHandle&&) noexcept -> DevHandle& = default;
 
-  void timeout(unsigned int timeout) noexcept;
+  ~DevHandle();
 
-  bool check_connection(unsigned int attempts = 10) const noexcept;
+  [[nodiscard]] auto dev_type() const noexcept -> DevType;
+  [[nodiscard]] auto name() const noexcept -> std::string const&;
+  [[nodiscard]] auto timeout() const noexcept -> unsigned int;
 
-  int send_cmd(const Buffer& cmd, Buffer* resp) const noexcept;
+  auto timeout(unsigned int timeout) noexcept -> void;
 
-  int send_raw(const Buffer& buf) const noexcept;
-  int recv_raw(Buffer* buf) const noexcept;
+  auto check_connection(unsigned int attempts = 10) const noexcept -> bool;
+
+  auto send_cmd(Buffer const& cmd, Buffer* resp) const noexcept -> int;
+
+  auto send_raw(Buffer const& buf) const noexcept -> int;
+  auto recv_raw(Buffer* buf) const noexcept -> int;
 
 private:
   class Impl;

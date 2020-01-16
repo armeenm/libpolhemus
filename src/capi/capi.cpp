@@ -1,5 +1,6 @@
 #include "capi.h"
 
+#include <cassert>
 #include <cstdio>
 #include <iostream>
 
@@ -32,8 +33,7 @@ auto libpolhemus_open(libpolhemus_context* ctx, libpolhemus_device_type const de
 }
 
 auto libpolhemus_get_device_type(libpolhemus_device_handle* handle, libpolhemus_device_type* dev_type) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   *dev_type = conv(conv(handle)->dev_type());
 
@@ -41,8 +41,7 @@ auto libpolhemus_get_device_type(libpolhemus_device_handle* handle, libpolhemus_
 }
 
 auto libpolhemus_get_name(libpolhemus_device_handle* handle, char const** name) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   *name = conv(handle)->name().c_str();
 
@@ -50,8 +49,7 @@ auto libpolhemus_get_name(libpolhemus_device_handle* handle, char const** name) 
 }
 
 auto libpolhemus_get_timeout(libpolhemus_device_handle* handle, unsigned int* timeout) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   *timeout = conv(handle)->timeout();
 
@@ -59,8 +57,7 @@ auto libpolhemus_get_timeout(libpolhemus_device_handle* handle, unsigned int* ti
 }
 
 auto libpolhemus_set_timeout(libpolhemus_device_handle* handle, unsigned int const timeout) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   conv(handle)->timeout(timeout);
 
@@ -68,37 +65,32 @@ auto libpolhemus_set_timeout(libpolhemus_device_handle* handle, unsigned int con
 }
 
 auto libpolhemus_send_raw(libpolhemus_device_handle* handle, libpolhemus_buffer const* buf) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   return conv(handle)->send_raw(*reinterpret_cast<Buffer const*>(buf));
 }
 
 auto libpolhemus_recv_raw(libpolhemus_device_handle* handle, libpolhemus_buffer* buf) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   return conv(handle)->recv_raw(conv(buf));
 }
 
 auto libpolhemus_check_connection_att(libpolhemus_device_handle* handle, unsigned int attempts) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   return conv(handle)->check_connection(attempts);
 }
 
 auto libpolhemus_check_connection(libpolhemus_device_handle* handle) -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   return conv(handle)->check_connection();
 }
 
 auto libpolhemus_send_cmd(libpolhemus_device_handle* handle, libpolhemus_buffer const* cmd, libpolhemus_buffer* resp)
     -> int {
-  if (!handle)
-    return -1;
+  assert(handle);
 
   return conv(handle)->send_cmd(*reinterpret_cast<Buffer const*>(cmd), conv(resp));
 }
