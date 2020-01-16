@@ -6,6 +6,22 @@ project(libpolhemus
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
 find_package(LibUSB 1.0 REQUIRED MODULE)
 
+option(FORCE_COLORED_OUTPUT
+    "Always produce ANSI-colored output (GNU/Clang only)" 
+    FALSE)
+
+option(STATIC_ANALYSIS
+    "Enable static analysis tools for enabled"
+    FALSE)
+
+if(${FORCE_COLORED_OUTPUT})
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        add_compile_options(-fdiagnostics-color=always)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        add_compile_options(-fcolor-diagnostics)
+    endif()
+endif()
+
 ################################################################################
 ### C++ API
 ################################################################################
@@ -40,7 +56,16 @@ target_compile_features(polhemus
         cxx_uniform_initialization)
 set_target_properties(polhemus PROPERTIES CXX_EXTENSIONS OFF)
 
+if(${STATIC_ANALYSIS})
+    message(yay!)
+    set_target_properties(polhemus PROPERTIES
+        CXX_CLANG_TIDY "clang-tidy;-checks=*"
+        CXX_CPPCHECK "cppcheck;--std=c++11")
+endif()
+
 target_link_libraries(polhemus PRIVATE LibUSB::LibUSB)
+
+## Installation ##
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Polhemus)
