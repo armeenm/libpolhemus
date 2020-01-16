@@ -8,7 +8,7 @@
 using namespace polhemus;
 
 extern "C" {
-int libpolhemus_init(libpolhemus_context** ctx) {
+auto libpolhemus_init(libpolhemus_context** ctx) -> int {
   try {
     *ctx = conv(new Context);
   } catch (const std::exception& e) {
@@ -19,8 +19,8 @@ int libpolhemus_init(libpolhemus_context** ctx) {
   return 0;
 }
 
-int libpolhemus_open(libpolhemus_context* ctx, const libpolhemus_device_type dev_type,
-                     libpolhemus_device_handle** handle) {
+auto libpolhemus_open(libpolhemus_context* ctx, const libpolhemus_device_type dev_type,
+                      libpolhemus_device_handle** handle) -> int {
   try {
     *handle = conv(new DevHandle(conv(ctx), conv(dev_type)));
   } catch (const std::exception& e) {
@@ -31,7 +31,7 @@ int libpolhemus_open(libpolhemus_context* ctx, const libpolhemus_device_type dev
   return 0;
 }
 
-int libpolhemus_get_device_type(libpolhemus_device_handle* handle, libpolhemus_device_type* dev_type) {
+auto libpolhemus_get_device_type(libpolhemus_device_handle* handle, libpolhemus_device_type* dev_type) -> int {
   if (!handle)
     return -1;
 
@@ -40,7 +40,7 @@ int libpolhemus_get_device_type(libpolhemus_device_handle* handle, libpolhemus_d
   return 0;
 }
 
-int libpolhemus_get_name(libpolhemus_device_handle* handle, const char** name) {
+auto libpolhemus_get_name(libpolhemus_device_handle* handle, const char** name) -> int {
   if (!handle)
     return -1;
 
@@ -49,7 +49,7 @@ int libpolhemus_get_name(libpolhemus_device_handle* handle, const char** name) {
   return 0;
 }
 
-int libpolhemus_get_timeout(libpolhemus_device_handle* handle, unsigned int* timeout) {
+auto libpolhemus_get_timeout(libpolhemus_device_handle* handle, unsigned int* timeout) -> int {
   if (!handle)
     return -1;
 
@@ -58,7 +58,7 @@ int libpolhemus_get_timeout(libpolhemus_device_handle* handle, unsigned int* tim
   return 0;
 }
 
-int libpolhemus_set_timeout(libpolhemus_device_handle* handle, const unsigned int timeout) {
+auto libpolhemus_set_timeout(libpolhemus_device_handle* handle, const unsigned int timeout) -> int {
   if (!handle)
     return -1;
 
@@ -67,42 +67,43 @@ int libpolhemus_set_timeout(libpolhemus_device_handle* handle, const unsigned in
   return 0;
 }
 
-int libpolhemus_send_raw(libpolhemus_device_handle* handle, const libpolhemus_buffer* buf) {
+auto libpolhemus_send_raw(libpolhemus_device_handle* handle, const libpolhemus_buffer* buf) -> int {
   if (!handle)
     return -1;
 
   return conv(handle)->send_raw(*reinterpret_cast<const Buffer*>(buf));
 }
 
-int libpolhemus_recv_raw(libpolhemus_device_handle* handle, libpolhemus_buffer* buf) {
+auto libpolhemus_recv_raw(libpolhemus_device_handle* handle, libpolhemus_buffer* buf) -> int {
   if (!handle)
     return -1;
 
   return conv(handle)->recv_raw(conv(buf));
 }
 
-int libpolhemus_check_connection_att(libpolhemus_device_handle* handle, unsigned int attempts) {
+auto libpolhemus_check_connection_att(libpolhemus_device_handle* handle, unsigned int attempts) -> int {
   if (!handle)
     return -1;
 
   return conv(handle)->check_connection(attempts);
 }
 
-int libpolhemus_check_connection(libpolhemus_device_handle* handle) {
+auto libpolhemus_check_connection(libpolhemus_device_handle* handle) -> int {
   if (!handle)
     return -1;
 
   return conv(handle)->check_connection();
 }
 
-int libpolhemus_send_cmd(libpolhemus_device_handle* handle, const libpolhemus_buffer* cmd, libpolhemus_buffer* resp) {
+auto libpolhemus_send_cmd(libpolhemus_device_handle* handle, const libpolhemus_buffer* cmd, libpolhemus_buffer* resp)
+    -> int {
   if (!handle)
     return -1;
 
   return conv(handle)->send_cmd(*reinterpret_cast<const Buffer*>(cmd), conv(resp));
 }
 
-void libpolhemus_close(libpolhemus_device_handle* handle) { delete conv(handle); }
+auto libpolhemus_close(libpolhemus_device_handle* handle) -> void { delete conv(handle); }
 
-void libpolhemus_exit(libpolhemus_context* ctx) { delete conv(ctx); }
+auto libpolhemus_exit(libpolhemus_context* ctx) -> void { delete conv(ctx); }
 }
