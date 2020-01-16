@@ -4,7 +4,11 @@ project(libpolhemus
     DESCRIPTION "Library to interface with Polhemus sensors")
 
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
-find_package(LibUSB REQUIRED MODULE)
+find_package(LibUSB 1.0 REQUIRED MODULE)
+
+message("LibUSB found: " ${LibUSB_FOUND})
+message("LibUSB include: " ${LibUSB_INCLUDE_PDIR})
+message("LibUSB libs: " ${LibUSB_LIBRARIES})
 
 ################################################################################
 ### C++ API
@@ -55,6 +59,7 @@ install(FILES include/libpolhemus.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 ### C API
 ################################################################################
 
+#[[
 file(GLOB POLHEMUS_CAPI_SRCS
     LIST_DIRECTORIES false
     CONFIGURE_DEPENDS
@@ -92,6 +97,7 @@ install(TARGETS polhemus_c
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES include/libpolhemus.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+]]
 
 ################################################################################
 ### Installation

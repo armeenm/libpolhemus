@@ -19,11 +19,13 @@ find_package_handle_standard_args(LibUSB
     VERSION_VAR LibUSB_VERSION)
 
 if(LibUSB_FOUND)
-    get_filename_component(LibUSB_INCLUDE_DIRS ${LibUSB_INCLUDE_DIR} DIRECTORY)
+    # Include parent directory for path-qualified includes
+    get_filename_component(LibUSB_INCLUDE_PDIR ${LibUSB_INCLUDE_DIR} DIRECTORY)
 endif()
 
 if(LibUSB_FOUND AND NOT LibUSB::LibUSB)
     add_library(LibUSB::LibUSB SHARED IMPORTED)
     set_target_properties(LibUSB::LibUSB PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${LibUSB_INCLUDE_DIRS}")
+        IMPORTED_LOCATION "${LibUSB_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${LibUSB_INCLUDE_PDIR}")
 endif()
