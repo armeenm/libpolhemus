@@ -3,16 +3,16 @@ project(libpolhemus
     VERSION 1.0.0
     DESCRIPTION "Library to interface with Polhemus sensors")
 
-list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
-find_package(LibUSB 1.0 REQUIRED MODULE)
-
 option(FORCE_COLORED_OUTPUT
     "Always produce ANSI-colored output (GNU/Clang only)" 
     OFF)
 
 option(STATIC_ANALYSIS
     "Enable static analysis tools"
-    ON)
+    OFF)
+
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
+find_package(LibUSB 1.0 REQUIRED MODULE)
 
 ################################################################################
 ### C++ API
