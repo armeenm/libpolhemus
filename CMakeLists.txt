@@ -18,12 +18,12 @@ find_package(LibUSB 1.0 REQUIRED MODULE)
 ### C++ API
 ################################################################################
 
-file(GLOB POLHEMUS_CXX_SRCS
+file(GLOB CXX_SRCS
     LIST_DIRECTORIES false
     CONFIGURE_DEPENDS
     "src/cxx/*.cpp")
 
-add_library(polhemus SHARED ${POLHEMUS_CXX_SRCS})
+add_library(polhemus SHARED ${CXX_SRCS})
 add_library(Polhemus::Polhemus ALIAS polhemus)
 
 target_include_directories(polhemus
@@ -32,7 +32,6 @@ target_include_directories(polhemus
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/cxx)
-
 
 target_compile_options(polhemus PRIVATE -Wshadow -Wall -Wextra -pedantic -pipe)
 target_compile_features(polhemus
@@ -80,12 +79,12 @@ install(FILES include/libpolhemus.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 ### C API
 ################################################################################
 
-file(GLOB POLHEMUS_CAPI_SRCS
+file(GLOB CAPI_SRCS
     LIST_DIRECTORIES false
     CONFIGURE_DEPENDS
     "src/capi/*.cpp")
 
-add_library(polhemus_c SHARED ${POLHEMUS_CAPI_SRCS})
+add_library(polhemus_c SHARED ${CAPI_SRCS})
 add_library(Polhemus::CPolhemus ALIAS polhemus_c)
 
 target_include_directories(polhemus_c
