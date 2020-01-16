@@ -14,14 +14,6 @@ option(STATIC_ANALYSIS
     "Enable static analysis tools"
     ON)
 
-if(${FORCE_COLORED_OUTPUT})
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        add_compile_options(-fdiagnostics-color=always)
-    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        add_compile_options(-fcolor-diagnostics)
-    endif()
-endif()
-
 ################################################################################
 ### C++ API
 ################################################################################
@@ -55,6 +47,14 @@ target_compile_features(polhemus
         cxx_nonstatic_member_init
         cxx_uniform_initialization)
 set_target_properties(polhemus PROPERTIES CXX_EXTENSIONS OFF)
+
+if(${FORCE_COLORED_OUTPUT})
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(polhemus PRIVATE -fdiagnostics-color=always)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        target_compile_options(polhemus PRIVATE -fcolor-diagnostics)
+    endif()
+endif()
 
 if(${STATIC_ANALYSIS})
     set_target_properties(polhemus PROPERTIES
@@ -109,6 +109,14 @@ target_compile_features(polhemus_c
         cxx_nullptr
         cxx_constexpr)
 set_target_properties(polhemus_c PROPERTIES CXX_EXTENSIONS OFF)
+
+if(${FORCE_COLORED_OUTPUT})
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(polhemus_c PRIVATE -fdiagnostics-color=always)
+    elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        target_compile_options(polhemus_c PRIVATE -fcolor-diagnostics)
+    endif()
+endif()
 
 target_link_libraries(polhemus_c PRIVATE polhemus)
 
