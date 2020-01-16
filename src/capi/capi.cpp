@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "Context.h"
+#include "cxx/Context.h"
 
 using namespace polhemus;
 

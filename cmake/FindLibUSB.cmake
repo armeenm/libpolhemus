@@ -9,9 +9,9 @@ find_library(LibUSB_LIBRARIES
     NAMES usb-1.0 libusb-1.0
     PATHS ${PC_LibUSB_LIBRARY_DIRS})
 
-set(LibUSB_VERSION ${PC_LibUSB_VERSION})
-
 mark_as_advanced(LibUSB_INCLUDE_DIR LibUSB_LIBRARIES)
+
+set(LibUSB_VERSION ${PC_LibUSB_VERSION})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LibUSB

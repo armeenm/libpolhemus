@@ -6,10 +6,6 @@ project(libpolhemus
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
 find_package(LibUSB 1.0 REQUIRED MODULE)
 
-message("LibUSB found: " ${LibUSB_FOUND})
-message("LibUSB include: " ${LibUSB_INCLUDE_PDIR})
-message("LibUSB libs: " ${LibUSB_LIBRARIES})
-
 ################################################################################
 ### C++ API
 ################################################################################
@@ -42,6 +38,7 @@ target_compile_features(polhemus
         cxx_auto_type
         cxx_nonstatic_member_init
         cxx_uniform_initialization)
+set_target_properties(polhemus PROPERTIES CXX_EXTENSIONS OFF)
 
 target_link_libraries(polhemus PRIVATE LibUSB::LibUSB)
 
@@ -59,7 +56,6 @@ install(FILES include/libpolhemus.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 ### C API
 ################################################################################
 
-#[[
 file(GLOB POLHEMUS_CAPI_SRCS
     LIST_DIRECTORIES false
     CONFIGURE_DEPENDS
@@ -73,18 +69,22 @@ target_include_directories(polhemus_c
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/capi)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/capi
+        ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_compile_options(polhemus_c PRIVATE -Wshadow -Wall -Wextra -pedantic -pipe)
 target_compile_features(polhemus_c
     PUBLIC
         c_function_prototypes
     PRIVATE
+        cxx_std_17
+        cxx_variadic_templates
         cxx_auto_type
-        cxx_decltype
         cxx_return_type_deduction
-        cxx_constexpr
-        cxx_variadic_templates)
+        cxx_decltype
+        cxx_nullptr
+        cxx_constexpr)
+set_target_properties(polhemus_c PROPERTIES CXX_EXTENSIONS OFF)
 
 target_link_libraries(polhemus_c PRIVATE polhemus)
 
@@ -97,7 +97,6 @@ install(TARGETS polhemus_c
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES include/libpolhemus.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-]]
 
 ################################################################################
 ### Installation
