@@ -1,8 +1,8 @@
 #pragma once
 
-#include "libpolhemus.hpp"
+#include "polhemus.hpp"
 extern "C" {
-#include "libpolhemus.h"
+#include "polhemus.h"
 }
 
 #include <type_traits>

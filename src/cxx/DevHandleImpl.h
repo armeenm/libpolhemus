@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include "Context.h"
-#include "libpolhemus.hpp"
+#include "polhemus.hpp"
 
 namespace polhemus {
 

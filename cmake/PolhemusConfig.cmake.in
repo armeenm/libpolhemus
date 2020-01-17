@@ -5,8 +5,8 @@ list(APPEND CMAKE_MODULE_PATH ${Polhemus_CMAKE_DIR})
 find_dependency(LibUSB 1.0 REQUIRED MODULE)
 list(REMOVE_AT CMAKE_MODULE_PATH -1)
 
-if(NOT TARGET Polhemus::Polhemus OR NOT TARGET Polhemus::CPolhemus)
-    include("${Polhemus_CMAKE_DIR}/PolhemusTargets.cmake")
+if(NOT TARGET Polhemus::polhemus_cc OR NOT TARGET Polhemus::polhemus)
+  include("${Polhemus_CMAKE_DIR}/PolhemusTargets.cmake")
 endif()
 
-set(Polhemus_LIBRARIES "Polhemus::Polhemus;Polhemus::CPolhemus")
+set(Polhemus_LIBRARIES "Polhemus::polhemus_cc;Polhemus::polhemus")

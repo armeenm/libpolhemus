@@ -2,7 +2,7 @@
 
 #include <libusb-1.0/libusb.h>
 
-#include "libpolhemus.hpp"
+#include "polhemus.hpp"
 
 namespace polhemus {
 

@@ -5,7 +5,7 @@
 #include <thread>
 
 #include "DevHandleImpl.h"
-#include "libpolhemus.hpp"
+#include "polhemus.hpp"
 
 namespace polhemus {
 
