@@ -22,7 +22,7 @@ auto DevHandle::Impl::transfer(unsigned char* const buf, int const len, unsigned
 }
 
 auto DevHandle::Impl::recv(std::string* const buf) const -> int {
-  auto len = (buf->length() > INT_MAX) ? INT_MAX : static_cast<int>(buf->length());
+  auto len = (buf->capacity() > INT_MAX) ? INT_MAX : static_cast<int>(buf->capacity());
 
   return transfer(reinterpret_cast<unsigned char*>(buf->data()), len, info.read_ep);
 }

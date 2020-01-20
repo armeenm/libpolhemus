@@ -35,6 +35,7 @@ public:
 
   auto send_cmd(std::string_view cmd, std::string* resp) const -> int;
   auto send_cmd(std::string_view cmd, int max_resp_size) const -> std::pair<std::string, int>;
+  auto send_cmd(std::string_view cmd, char* resp, int max_resp_size) const -> int;
 
   auto send_raw(std::string_view buf) const -> int;
   auto recv_raw(std::string* buf) const -> int;

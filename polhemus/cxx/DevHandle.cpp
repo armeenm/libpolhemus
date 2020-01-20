@@ -139,9 +139,9 @@ auto DevHandle::send_cmd(std::string_view const cmd, int const max_resp_size) co
   return {resp, received};
 }
 
-auto DevHandle::recv_raw(std::string* const buf) const -> int { return impl_->recv(buf); }
-
-auto DevHandle::recv_raw(int const max_size) const -> std::pair<std::string, int> { return impl_->recv(max_size); }
+auto DevHandle::recv_raw(std::string* const resp) const -> int { return impl_->recv(resp); }
+auto DevHandle::recv_raw(int const max_resp_size) const -> std::pair<std::string, int> { return impl_->recv(max_size); }
+auto DevHandle::recv_raw(char* const resp, int const max_resp_size) -> int { return impl_->recv(resp, max_resp_size); }
 
 auto DevHandle::send_raw(std::string_view const buf) const -> int { return impl_->send(buf); }
 
