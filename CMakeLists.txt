@@ -21,7 +21,7 @@ find_package(LibUSB 1.0 REQUIRED MODULE)
 file(GLOB CXX_SRCS
   LIST_DIRECTORIES false
   CONFIGURE_DEPENDS
-  "src/cxx/*.cpp")
+  "polhemus/cxx/*.cpp")
 
 add_library(polhemus_cc SHARED ${CXX_SRCS})
 add_library(Polhemus::polhemus_cc ALIAS polhemus_cc)
@@ -31,11 +31,12 @@ target_include_directories(polhemus_cc
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/cxx)
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_options(polhemus_cc PRIVATE -Wshadow -Wall -Wextra -pedantic -pipe)
 target_compile_features(polhemus_cc
   PUBLIC
+  cxx_std_17
   cxx_rvalue_references
   cxx_attributes
   cxx_noexcept
@@ -85,7 +86,7 @@ install(FILES include/polhemus.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 file(GLOB CAPI_SRCS
   LIST_DIRECTORIES false
   CONFIGURE_DEPENDS
-  "src/capi/*.cpp")
+  "polhemus/capi/*.cpp")
 
 add_library(polhemus_c SHARED ${CAPI_SRCS})
 add_library(Polhemus::polhemus ALIAS polhemus_c)
@@ -95,8 +96,7 @@ target_include_directories(polhemus_c
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/capi
-  ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_options(polhemus_c PRIVATE -Wshadow -Wall -Wextra -pedantic -pipe)
 target_compile_features(polhemus_c

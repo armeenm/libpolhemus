@@ -2,46 +2,43 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
+#include <utility>
 
 namespace polhemus {
 
-extern "C" {
-enum DevType { PATRIOT, PATRIOT_HS };
-
-struct Buffer {
-  unsigned char* data;
-  int len;
-};
-}
-
+class DevHandle;
 class Context;
 
-[[nodiscard]] auto context() -> std::unique_ptr<Context>;
+enum class DevType { PATRIOT, PATRIOT_HS };
+
+[[nodiscard]] auto init() -> std::unique_ptr<Context>;
 
 class DevHandle {
 public:
-  DevHandle(Context* ctx, DevType type, unsigned int timeout = 50);
-
-  DevHandle(DevHandle const&) = delete;
-  DevHandle(DevHandle&&) noexcept = default;
-
-  auto operator=(DevHandle const&) -> DevHandle& = delete;
-  auto operator=(DevHandle&&) noexcept -> DevHandle& = default;
-
+  DevHandle(Context*, DevType, unsigned int timeout);
   ~DevHandle();
 
+  DevHandle(DevHandle const&) = delete;
+  auto operator=(DevHandle const&) -> DevHandle& = delete;
+
+  DevHandle(DevHandle&&) noexcept = default;
+  auto operator=(DevHandle&&) noexcept -> DevHandle& = default;
+
   [[nodiscard]] auto dev_type() const noexcept -> DevType;
-  [[nodiscard]] auto name() const noexcept -> std::string const&;
+  [[nodiscard]] auto name() const noexcept -> std::string_view;
   [[nodiscard]] auto timeout() const noexcept -> unsigned int;
 
   auto timeout(unsigned int timeout) noexcept -> void;
 
   auto check_connection(unsigned int attempts = 10) const noexcept -> bool;
 
-  auto send_cmd(Buffer const& cmd, Buffer* resp) const noexcept -> int;
+  auto send_cmd(std::string_view cmd, std::string* resp) const -> int;
+  auto send_cmd(std::string_view cmd, int max_resp_size) const -> std::pair<std::string, int>;
 
-  auto send_raw(Buffer const& buf) const noexcept -> int;
-  auto recv_raw(Buffer* buf) const noexcept -> int;
+  auto send_raw(std::string_view buf) const -> int;
+  auto recv_raw(std::string* buf) const -> int;
+  auto recv_raw(int max_size) const -> std::pair<std::string, int>;
 
 private:
   class Impl;

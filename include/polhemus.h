@@ -20,9 +20,6 @@ int libpolhemus_get_timeout(libpolhemus_device_handle*, unsigned int* timeout);
 
 int libpolhemus_set_timeout(libpolhemus_device_handle*, unsigned int timeout);
 
-int libpolhemus_send_raw(libpolhemus_device_handle*, libpolhemus_buffer const*);
-int libpolhemus_recv_raw(libpolhemus_device_handle*, libpolhemus_buffer*);
-
 int libpolhemus_check_connection_att(libpolhemus_device_handle*, unsigned int attempts);
 int libpolhemus_check_connection(libpolhemus_device_handle*);
 

@@ -2,10 +2,13 @@
 
 #include <libusb-1.0/libusb.h>
 
+#include <string>
+#include <string_view>
 #include <unordered_map>
+#include <utility>
 
-#include "Context.h"
 #include "polhemus.hpp"
+#include "polhemus/cxx/Context.h"
 
 namespace polhemus {
 
@@ -20,11 +23,12 @@ public:
 
   Impl(Context* ctx, DevType type, unsigned int timeout);
 
-  auto transfer_raw(Buffer* buf, unsigned char ep) const noexcept -> int;
-  auto send_buf(Buffer const& cmd, Buffer* resp, bool add_cr) const noexcept -> int;
+  auto transfer(unsigned char* buf, int size, unsigned char ep) const -> int;
 
-  auto send_raw(Buffer const& buf) const noexcept -> int;
-  auto recv_raw(Buffer* buf) const noexcept -> int;
+  auto send(std::string_view buf) const -> int;
+
+  auto recv(std::string* buf) const -> int;
+  [[nodiscard]] auto recv(int max_size) const -> std::pair<std::string, int>;
 
   [[nodiscard]] auto lctx() const noexcept -> libusb_context*;
 

@@ -1,10 +1,10 @@
-#include "capi.h"
+#include "polhemus/capi/capi.h"
 
 #include <cassert>
 #include <cstdio>
 #include <iostream>
 
-#include "cxx/Context.h"
+#include "polhemus/cxx/Context.h"
 
 using namespace polhemus;
 
@@ -62,18 +62,6 @@ auto libpolhemus_set_timeout(libpolhemus_device_handle* handle, unsigned int con
   conv(handle)->timeout(timeout);
 
   return 0;
-}
-
-auto libpolhemus_send_raw(libpolhemus_device_handle* handle, libpolhemus_buffer const* buf) -> int {
-  assert(handle);
-
-  return conv(handle)->send_raw(*reinterpret_cast<Buffer const*>(buf));
-}
-
-auto libpolhemus_recv_raw(libpolhemus_device_handle* handle, libpolhemus_buffer* buf) -> int {
-  assert(handle);
-
-  return conv(handle)->recv_raw(conv(buf));
 }
 
 auto libpolhemus_check_connection_att(libpolhemus_device_handle* handle, unsigned int attempts) -> int {

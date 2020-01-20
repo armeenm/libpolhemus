@@ -1,11 +1,14 @@
 #include <libusb-1.0/libusb.h>
 
+#include <algorithm>
 #include <chrono>
 #include <exception>
 #include <thread>
 
-#include "DevHandleImpl.h"
 #include "polhemus.hpp"
+#include "polhemus/cxx/DevHandleImpl.h"
+#include "polhemus/cxx/lits.h"
+#include "third_party/magic_enum.hpp"
 
 namespace polhemus {
 
@@ -13,7 +16,7 @@ namespace polhemus {
 // {{{
 
 DevHandle::DevHandle(Context* const ctx, DevType const type, unsigned int const timeout)
-    : impl_(new Impl(ctx, type, timeout)) {
+    : impl_(std::make_unique<Impl>(ctx, type, timeout)) {
   libusb_device** dev_list;
   libusb_device* found = nullptr;
   int err = 0;
@@ -57,7 +60,7 @@ DevHandle::~DevHandle() { libusb_close(impl_->handle); }
 // {{{
 
 auto DevHandle::dev_type() const noexcept -> DevType { return impl_->info.dev_type; }
-auto DevHandle::name() const noexcept -> std::string const& { return impl_->info.name; }
+auto DevHandle::name() const noexcept -> std::string_view { return impl_->info.name; }
 auto DevHandle::timeout() const noexcept -> unsigned int { return impl_->timeout; }
 
 // }}}
@@ -73,29 +76,29 @@ auto DevHandle::timeout(unsigned int const timeout) noexcept -> void { impl_->ti
 // {{{
 
 auto DevHandle::check_connection(unsigned int const attempts) const noexcept -> bool {
-  constexpr int WAIT_TIME = 100;
-  constexpr int RESP_SIZE = 128;
+  auto constexpr WAIT_TIME = 100ms;
+  auto constexpr RESP_SIZE = 128;
 
-  unsigned char cr[] = "\r";
-  auto const cmd = Buffer{cr, 1};
-  auto resp_buf = std::unique_ptr<unsigned char[]>(new unsigned char[128]);
-  auto resp = Buffer{resp_buf.get(), RESP_SIZE};
-  int err = 0;
+  auto const cmd = "\r"s;
+  auto resp = std::string();
+  resp.reserve(RESP_SIZE);
+
+  auto err = 0;
 
   /* Send useless command, await response
    * Try a total of 'attempts' times before giving up
    */
-  unsigned int i = 0;
+  auto i = 0u;
   do {
     if (++i == attempts)
       return false;
 
-    if (send_raw(cmd) <= 0)
+    if (impl_->send(cmd) <= 0)
       continue;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_TIME));
+    std::this_thread::sleep_for(WAIT_TIME);
 
-    err = recv_raw(&resp);
+    err = impl_->recv(&resp);
   } while (err <= 0);
 
   i = 0;
@@ -106,19 +109,41 @@ auto DevHandle::check_connection(unsigned int const attempts) const noexcept -> 
     if (++i == attempts) {
       return false;
     }
-    err = recv_raw(&resp);
+    err = impl_->recv(&resp);
   } while (err != 1);
 
   return true;
 }
 
-auto DevHandle::send_cmd(Buffer const& cmd, Buffer* resp) const noexcept -> int {
-  return impl_->send_buf(cmd, resp,
-                         cmd.data != nullptr && cmd.data[0] != '\r' && cmd.data[0] != 'p' && cmd.data[0] != 'P');
+auto DevHandle::send_cmd(std::string_view const cmd, std::string* const resp) const -> int {
+  auto transferred = decltype(cmd)::size_type{0};
+
+  for (auto const& chr : cmd)
+    transferred += impl_->send({&chr, 1});
+
+  if (transferred != cmd.length())
+    throw std::runtime_error("Failed to send command");
+
+  if (cmd[0] != '\r' && cmd[0] != 'p' && cmd[0] != 'P')
+    impl_->send({"\r", 1});
+
+  return impl_->recv(resp);
 }
 
-auto DevHandle::send_raw(Buffer const& buf) const noexcept -> int { return impl_->send_raw(buf); }
-auto DevHandle::recv_raw(Buffer* buf) const noexcept -> int { return impl_->recv_raw(buf); }
+auto DevHandle::send_cmd(std::string_view const cmd, int const max_resp_size) const -> std::pair<std::string, int> {
+  std::string resp;
+  resp.reserve(max_resp_size);
+
+  auto received = send_cmd(cmd, &resp);
+
+  return {resp, received};
+}
+
+auto DevHandle::recv_raw(std::string* const buf) const -> int { return impl_->recv(buf); }
+
+auto DevHandle::recv_raw(int const max_size) const -> std::pair<std::string, int> { return impl_->recv(max_size); }
+
+auto DevHandle::send_raw(std::string_view const buf) const -> int { return impl_->send(buf); }
 
 // }}}
 

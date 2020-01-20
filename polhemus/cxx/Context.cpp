@@ -1,4 +1,4 @@
-#include "Context.h"
+#include "polhemus/cxx/Context.h"
 
 #include "polhemus.hpp"
 
