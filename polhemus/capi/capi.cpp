@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <fmt/format.h>
 
+#include "polhemus/common.h"
 #include "polhemus/cxx/Context.h"
 
 using namespace polhemus;
@@ -59,7 +60,26 @@ auto libpolhemus_send_cmd(libpolhemus_device_handle* const handle, char const* c
   try {
     return conv(handle)->send_cmd(cmd, resp, max_resp_size);
   } catch (std::exception const& e) {
-    return 0;
+    fmt::print(stderr, "Failed to send command: {}\n", e.what());
+    return -1;
+  }
+}
+
+auto libpolhemus_send_raw(libpolhemus_device_handle* const handle, char const* const data) -> int {
+  try {
+    return conv(handle)->send_raw(data);
+  } catch (std::exception const& e) {
+    fmt::print(stderr, "Failed to send: {}\n", e.what());
+    return -1;
+  }
+}
+
+auto libpolhemus_recv_raw(libpolhemus_device_handle* const handle, char* const resp, int max_resp_size) -> int {
+  try {
+    return conv(handle)->recv_raw(resp, max_resp_size);
+  } catch (std::exception const& e) {
+    fmt::print(stderr, "Failed to receive: {}\n", e.what());
+    return -1;
   }
 }
 
