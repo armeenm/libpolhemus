@@ -38,8 +38,10 @@ public:
   auto send_cmd(std::string_view cmd, char* resp, int max_resp_size) const -> int;
 
   auto send_raw(std::string_view buf) const -> int;
+
   auto recv_raw(std::string* buf) const -> int;
   auto recv_raw(int max_size) const -> std::pair<std::string, int>;
+  auto recv_raw(char* resp, int max_resp_size) -> int;
 
 private:
   class Impl;

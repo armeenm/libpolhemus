@@ -21,26 +21,30 @@ auto DevHandle::Impl::transfer(unsigned char* const buf, int const len, unsigned
   return transferred;
 }
 
-auto DevHandle::Impl::recv(std::string* const buf) const -> int {
-  auto len = (buf->capacity() > INT_MAX) ? INT_MAX : static_cast<int>(buf->capacity());
-
-  return transfer(reinterpret_cast<unsigned char*>(buf->data()), len, info.read_ep);
-}
-
-auto DevHandle::Impl::recv(int const max_size) const -> std::pair<std::string, int> {
-  auto resp = std::string();
-  resp.reserve(max_size);
-
-  auto const received = transfer(reinterpret_cast<unsigned char*>(resp.data()), max_size, info.read_ep);
-
-  return {resp, received};
-}
-
 auto DevHandle::Impl::send(std::string_view const buf) const -> int {
   if (buf.size() > INT_MAX)
     throw std::range_error(fmt::format("Input buffer size {} too large", buf.size()));
 
   return transfer(reinterpret_cast<unsigned char*>(const_cast<char*>(buf.data())), buf.size(), info.write_ep);
+}
+
+auto DevHandle::Impl::recv(std::string* const resp) const -> int {
+  auto len = (resp->capacity() > INT_MAX) ? INT_MAX : static_cast<int>(resp->capacity());
+
+  return transfer(reinterpret_cast<unsigned char*>(resp->data()), len, info.read_ep);
+}
+
+auto DevHandle::Impl::recv(char* const resp, int const max_resp_size) const -> int {
+  return transfer(reinterpret_cast<unsigned char*>(resp), max_resp_size, info.read_ep);
+}
+
+auto DevHandle::Impl::recv(int const max_resp_size) const -> std::pair<std::string, int> {
+  auto resp = std::string();
+  resp.reserve(max_resp_size);
+
+  auto const received = transfer(reinterpret_cast<unsigned char*>(resp.data()), max_resp_size, info.read_ep);
+
+  return {resp, received};
 }
 
 auto DevHandle::Impl::lctx() const noexcept -> libusb_context* { return ctx_.lctx(); }

@@ -27,8 +27,9 @@ public:
 
   auto send(std::string_view buf) const -> int;
 
-  auto recv(std::string* buf) const -> int;
-  [[nodiscard]] auto recv(int max_size) const -> std::pair<std::string, int>;
+  auto recv(std::string* resp) const -> int;
+  auto recv(char* resp, int max_resp_size) const -> int;
+  [[nodiscard]] auto recv(int max_resp_size) const -> std::pair<std::string, int>;
 
   [[nodiscard]] auto lctx() const noexcept -> libusb_context*;
 
