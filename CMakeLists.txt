@@ -14,6 +14,8 @@ option(STATIC_ANALYSIS
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
 find_package(LibUSB 1.0 REQUIRED MODULE)
 
+set(BUILD_OPTS -Wshadow -Wduplicated-cond -Wlogical-op -Wduplicated-branches -Wnull-dereference -Wold-style-cast -Wuseless-cast -Wformat=2 -Wdouble-promotion -Wall -Wextra -Wconversion -Wpedantic -pipe)
+
 ################################################################################
 ### C++ API
 ################################################################################
@@ -33,7 +35,7 @@ target_include_directories(polhemus_cc
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_options(polhemus_cc PRIVATE -Wshadow -Wall -Wextra -pedantic -pipe)
+target_compile_options(polhemus_cc PRIVATE ${BUILD_OPTS})
 target_compile_features(polhemus_cc
   PUBLIC
   cxx_std_17
@@ -46,10 +48,7 @@ target_compile_features(polhemus_cc
   cxx_auto_type
   cxx_nonstatic_member_init
   cxx_uniform_initialization)
-set_target_properties(polhemus_cc
-  PROPERTIES
-  EXPORT_NAME polhemus_cc
-  CXX_EXTENSIONS OFF)
+set_target_properties(polhemus_cc PROPERTIES EXPORT_NAME polhemus_cc)
 
 if(${FORCE_COLORED_OUTPUT})
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -98,7 +97,7 @@ target_include_directories(polhemus_c
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_options(polhemus_c PRIVATE -Wshadow -Wall -Wextra -pedantic -pipe)
+target_compile_options(polhemus_c PRIVATE ${BUILD_OPTS})
 target_compile_features(polhemus_c
   PUBLIC
   c_function_prototypes
@@ -110,10 +109,7 @@ target_compile_features(polhemus_c
   cxx_decltype
   cxx_nullptr
   cxx_constexpr)
-set_target_properties(polhemus_c
-  PROPERTIES
-  EXPORT_NAME polhemus
-  CXX_EXTENSIONS OFF)
+set_target_properties(polhemus_c PROPERTIES EXPORT_NAME polhemus)
 
 if(${FORCE_COLORED_OUTPUT})
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")

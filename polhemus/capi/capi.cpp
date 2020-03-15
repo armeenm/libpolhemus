@@ -5,7 +5,7 @@
 #include <fmt/format.h>
 
 #include "polhemus/common.h"
-#include "polhemus/cxx/Context.h"
+#include "polhemus/cxx/context.h"
 
 using namespace polhemus;
 

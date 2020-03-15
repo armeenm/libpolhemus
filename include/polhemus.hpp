@@ -10,7 +10,7 @@ namespace polhemus {
 class DevHandle;
 class Context;
 
-enum class DevType { PATRIOT, PATRIOT_HS };
+enum DevType { PATRIOT, PATRIOT_HS };
 
 [[nodiscard]] auto init() -> std::unique_ptr<Context>;
 
@@ -33,15 +33,15 @@ public:
 
   auto check_connection(unsigned int attempts = 10) const noexcept -> bool;
 
-  auto send_cmd(std::string_view cmd, std::string* resp) const -> int;
-  auto send_cmd(std::string_view cmd, int max_resp_size) const -> std::pair<std::string, int>;
+  auto send_cmd(std::string_view cmd, std::string& resp) const -> int;
+  auto send_cmd(std::string_view cmd, int max_resp_size) const -> std::string;
   auto send_cmd(std::string_view cmd, char* resp, int max_resp_size) const -> int;
 
   auto send_raw(std::string_view buf) const -> int;
 
-  auto recv_raw(std::string* buf) const -> int;
-  auto recv_raw(int max_size) const -> std::pair<std::string, int>;
-  auto recv_raw(char* resp, int max_resp_size) -> int;
+  auto recv_raw(std::string& buf) const -> int;
+  auto recv_raw(int max_size) const -> std::string;
+  auto recv_raw(char* resp, int max_resp_size) const -> int;
 
 private:
   class Impl;

@@ -1,5 +1,5 @@
 #include "polhemus.hpp"
-#include "polhemus/cxx/Context.h"
+#include "polhemus/cxx/context.h"
 
 namespace polhemus {
 

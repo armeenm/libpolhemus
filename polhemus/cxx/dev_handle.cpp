@@ -6,7 +6,7 @@
 #include <thread>
 
 #include "polhemus.hpp"
-#include "polhemus/cxx/DevHandleImpl.h"
+#include "polhemus/cxx/dev_handle_impl.h"
 #include "polhemus/cxx/lits.h"
 #include "third_party/magic_enum.hpp"
 
@@ -59,7 +59,7 @@ DevHandle::~DevHandle() { libusb_close(impl_->handle); }
 /***** Accessors *****/
 // {{{
 
-auto DevHandle::dev_type() const noexcept -> DevType { return impl_->info.dev_type; }
+auto DevHandle::dev_type() const noexcept -> DevType { return impl_->type; }
 auto DevHandle::name() const noexcept -> std::string_view { return impl_->info.name; }
 auto DevHandle::timeout() const noexcept -> unsigned int { return impl_->timeout; }
 
@@ -98,7 +98,7 @@ auto DevHandle::check_connection(unsigned int const attempts) const noexcept -> 
 
     std::this_thread::sleep_for(WAIT_TIME);
 
-    err = impl_->recv(&resp);
+    err = impl_->recv(resp);
   } while (err <= 0);
 
   i = 0;
@@ -106,16 +106,16 @@ auto DevHandle::check_connection(unsigned int const attempts) const noexcept -> 
   /* Clear out the ingress buffer */
   /* TODO: Consider breaking this out into another function */
   do {
-    if (++i == attempts) {
+    if (++i == attempts)
       return false;
-    }
-    err = impl_->recv(&resp);
+
+    err = impl_->recv(resp);
   } while (err != 1);
 
   return true;
 }
 
-auto DevHandle::send_cmd(std::string_view const cmd, std::string* const resp) const -> int {
+auto DevHandle::send_cmd(std::string_view const cmd, std::string& resp) const -> int {
   auto transferred = decltype(cmd)::size_type{0};
 
   for (auto const& chr : cmd)
@@ -125,25 +125,25 @@ auto DevHandle::send_cmd(std::string_view const cmd, std::string* const resp) co
     throw std::runtime_error("Failed to send command");
 
   if (cmd[0] != '\r' && cmd[0] != 'p' && cmd[0] != 'P')
-    impl_->send({"\r", 1});
+    impl_->send("\r");
 
   return impl_->recv(resp);
 }
 
-auto DevHandle::send_cmd(std::string_view const cmd, int const max_resp_size) const -> std::pair<std::string, int> {
+auto DevHandle::send_cmd(std::string_view const cmd, int const max_resp_size) const -> std::string {
   std::string resp;
   resp.reserve(max_resp_size);
 
-  auto received = send_cmd(cmd, &resp);
+  resp.resize(send_cmd(cmd, resp));
 
-  return {resp, received};
+  return resp;
 }
 
-auto DevHandle::recv_raw(std::string* const resp) const -> int { return impl_->recv(resp); }
-auto DevHandle::recv_raw(int const max_resp_size) const -> std::pair<std::string, int> {
-  return impl_->recv(max_resp_size);
+auto DevHandle::recv_raw(std::string& resp) const -> int { return impl_->recv(resp); }
+auto DevHandle::recv_raw(int const max_resp_size) const -> std::string { return impl_->recv(max_resp_size); }
+auto DevHandle::recv_raw(char* const resp, int const max_resp_size) const -> int {
+  return impl_->recv(resp, max_resp_size);
 }
-auto DevHandle::recv_raw(char* const resp, int const max_resp_size) -> int { return impl_->recv(resp, max_resp_size); }
 
 auto DevHandle::send_raw(std::string_view const buf) const -> int { return impl_->send(buf); }
 

@@ -5,6 +5,7 @@ extern "C" {
 #include "polhemus.h"
 }
 
+#include "polhemus/common.h"
 #include <type_traits>
 
 /* Macro to ease checking and casting in conv
@@ -13,9 +14,6 @@ extern "C" {
 #define PLHM_CONV_CHK_(cxx, c)                                                                                         \
   if constexpr (auto res##c = multi_magic_cast<cxx, libpolhemus_##c>(val); !std::is_null_pointer_v<decltype(res##c)>)  \
   return res##c
-
-/* Workaround for static_assert(false) */
-template <typename...> constexpr std::false_type always_false{};
 
 template <typename T, typename U> inline constexpr auto data_equal() {
   return std::is_same_v<std::remove_pointer_t<std::decay_t<T>>, U>;
