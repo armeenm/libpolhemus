@@ -10,7 +10,7 @@
 using namespace polhemus;
 
 extern "C" {
-auto libpolhemus_init(libpolhemus_context const** const ctx) -> int {
+auto libpolhemus_init(libpolhemus_context** const ctx) -> int {
   if (ctx != nullptr) {
     try {
       *ctx = conv(new Context);
@@ -24,9 +24,9 @@ auto libpolhemus_init(libpolhemus_context const** const ctx) -> int {
 }
 
 auto libpolhemus_open(libpolhemus_context* const ctx, libpolhemus_device_type const dev_type,
-                      unsigned int const timeout, libpolhemus_device_handle const** const handle) -> int {
+                      libpolhemus_device_handle** const handle) -> int {
   try {
-    *handle = conv(new DevHandle(conv(ctx), conv(dev_type), timeout));
+    *handle = conv(new DevHandle(conv(ctx), conv(dev_type)));
   } catch (std::exception const& e) {
     fmt::print(stderr, "Failed to open device: {}\n", e.what());
     return -1;

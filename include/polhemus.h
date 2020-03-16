@@ -18,10 +18,9 @@ typedef struct {
 typedef struct libpolhemus_device_handle libpolhemus_device_handle;
 typedef struct libpolhemus_context libpolhemus_context;
 
-int libpolhemus_init(libpolhemus_context const**);
+int libpolhemus_init(libpolhemus_context**);
 
-int libpolhemus_open(libpolhemus_context*, libpolhemus_device_type, unsigned int timeout,
-                     libpolhemus_device_handle const**) PLHM_NONNULL_(4);
+int libpolhemus_open(libpolhemus_context*, libpolhemus_device_type, libpolhemus_device_handle**) PLHM_NONNULL_(3);
 
 libpolhemus_device_type libpolhemus_get_device_type(libpolhemus_device_handle*) PLHM_NONNULL_(1);
 char const* libpolhemus_get_name(libpolhemus_device_handle*) PLHM_NONNULL_(1);

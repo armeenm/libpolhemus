@@ -16,7 +16,7 @@ enum DevType { PATRIOT, PATRIOT_HS };
 
 class DevHandle {
 public:
-  DevHandle(Context*, DevType, unsigned int timeout);
+  DevHandle(Context*, DevType, unsigned int timeout = 50);
   ~DevHandle();
 
   DevHandle(DevHandle const&) = delete;
