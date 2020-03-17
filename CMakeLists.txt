@@ -125,7 +125,6 @@ if(${STATIC_ANALYSIS})
     CXX_CPPCHECK "cppcheck;--std=c++17")
 endif()
 
-
 target_link_libraries(polhemus_c PRIVATE polhemus_cc)
 
 include(GNUInstallDirs)
@@ -167,8 +166,9 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/PolhemusConfigVersion.cmake
   DESTINATION ${INSTALL_CONFIGDIR})
 
-configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/FindLibUSB.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/FindPolhemus.cmake
+configure_file(
+  ${CMAKE_CURRENT_LIST_DIR}/cmake/FindLibUSB.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/FindLibUSB.cmake
   COPYONLY)
 
 export(EXPORT polhemus-targets
