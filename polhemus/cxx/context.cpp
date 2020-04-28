@@ -2,6 +2,8 @@
 
 #include "polhemus.hpp"
 
+#include <stdexcept>
+
 namespace polhemus {
 
 Context::Context() {

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
-#include <exception>
+#include <stdexcept>
 #include <thread>
 
 #include "polhemus.hpp"
