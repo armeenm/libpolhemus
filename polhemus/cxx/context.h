@@ -10,10 +10,10 @@ class Context {
 public:
   Context();
 
-  Context(Context const&) = default;
+  Context(Context const&) = delete;
   Context(Context&&) noexcept = default;
 
-  auto operator=(Context const&) -> Context& = default;
+  auto operator=(Context const&) -> Context& = delete;
   auto operator=(Context&&) noexcept -> Context& = default;
 
   ~Context();

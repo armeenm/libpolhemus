@@ -6,6 +6,7 @@
 #include <thread>
 
 #include "polhemus.hpp"
+#include "polhemus/cxx/context.h"
 #include "polhemus/cxx/dev_handle_impl.h"
 #include "polhemus/cxx/lits.h"
 #include "third_party/magic_enum.hpp"
@@ -15,20 +16,22 @@ namespace polhemus {
 /***** Ctors *****/
 // {{{
 
+DevHandle::DevHandle(Context* const ctx, DevType const type) : DevHandle{ctx, type, 50} {}
+
 DevHandle::DevHandle(Context* const ctx, DevType const type, unsigned int const timeout)
-    : impl_(std::make_unique<Impl>(ctx, type, timeout)) {
+    : impl_{std::make_unique<Impl>(ctx ? ctx->lctx() : nullptr, type, timeout)} {
+
   libusb_device** dev_list;
   libusb_device* found = nullptr;
-  int err = 0;
 
-  ssize_t const cnt = libusb_get_device_list(impl_->lctx(), &dev_list);
+  ssize_t const cnt = libusb_get_device_list(impl_->lctx, &dev_list);
   if (cnt < 0) {
     throw std::runtime_error("Failed to get device list");
   }
 
   for (ssize_t i = 0; i < cnt; i++) {
     libusb_device_descriptor desc;
-    err = libusb_get_device_descriptor(dev_list[i], &desc);
+    auto err = libusb_get_device_descriptor(dev_list[i], &desc);
     /* If we failed to get the descriptor, move on */
     if (err)
       continue;
@@ -42,7 +45,7 @@ DevHandle::DevHandle(Context* const ctx, DevType const type, unsigned int const 
   }
 
   if (found) {
-    err = libusb_open(found, &(impl_->handle));
+    auto err = libusb_open(found, &(impl_->handle));
     libusb_free_device_list(dev_list, 1);
     if (err)
       throw std::runtime_error("Failed to open device");
@@ -140,7 +143,9 @@ auto DevHandle::send_cmd(std::string_view const cmd, int const max_resp_size) co
 }
 
 auto DevHandle::recv_raw(std::string& resp) const -> int { return impl_->recv(resp); }
-auto DevHandle::recv_raw(int const max_resp_size) const -> std::string { return impl_->recv(max_resp_size); }
+auto DevHandle::recv_raw(int const max_resp_size) const -> std::string {
+  return impl_->recv(max_resp_size);
+}
 auto DevHandle::recv_raw(char* const resp, int const max_resp_size) const -> int {
   return impl_->recv(resp, max_resp_size);
 }

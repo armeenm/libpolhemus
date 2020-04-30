@@ -7,8 +7,7 @@
 namespace polhemus {
 
 Context::Context() {
-  int const ret = libusb_init(&lctx_);
-  if (ret != 0)
+  if (libusb_init(&lctx_))
     throw std::runtime_error("Failed to create context");
 }
 

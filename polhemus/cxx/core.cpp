@@ -3,6 +3,6 @@
 
 namespace polhemus {
 
-auto context() -> std::unique_ptr<Context> { return std::make_unique<Context>(); }
+auto init() -> std::unique_ptr<Context> { return std::make_unique<Context>(); }
 
 } // namespace polhemus
