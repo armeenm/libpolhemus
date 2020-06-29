@@ -16,8 +16,8 @@ option(STATIC_ANALYSIS
   OFF)
 
 option(C_BINDINGS
-  "Enable C library bindings"
-  OFF)
+  "Enable C bindings"
+  ON)
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
