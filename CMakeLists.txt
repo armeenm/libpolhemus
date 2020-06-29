@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.15...3.18 FATAL_ERROR)
 
-set(default_compile_commands_export ON)
-include(cmake/ExportCompileCommands.cmake)
-
 project(polhemus
   VERSION 1.0.0
   DESCRIPTION "Library to interface with Polhemus sensors")
@@ -22,7 +19,8 @@ option(C_BINDINGS
 set(default_build_type "Release")
 include(cmake/BuildType.cmake)
 
-include(cmake/ForceColored.cmake)
+set(default_compile_commands_export ON)
+include(cmake/ExportCompileCommands.cmake)
 
 list(PREPEND CMAKE_PREFIX_PATH
   ${CMAKE_BINARY_DIR})
