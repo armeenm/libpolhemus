@@ -11,6 +11,8 @@
 #include "polhemus/cxx/lits.h"
 #include "third_party/magic_enum.hpp"
 
+auto constexpr inline default_buf_size = 1000;
+
 namespace polhemus {
 
 /***** Ctors *****/
@@ -78,6 +80,8 @@ auto DevHandle::timeout(unsigned int const timeout) noexcept -> void { impl_->ti
 /***** I/O *****/
 // {{{
 
+auto DevHandle::check_connection() const noexcept -> bool { return check_connection(10U); }
+
 auto DevHandle::check_connection(unsigned int const attempts) const noexcept -> bool {
   auto constexpr WAIT_TIME = 100ms;
   auto constexpr RESP_SIZE = 128;
@@ -118,7 +122,7 @@ auto DevHandle::check_connection(unsigned int const attempts) const noexcept -> 
   return true;
 }
 
-auto DevHandle::send_cmd(std::string_view const cmd, std::string& resp) const -> int {
+auto DevHandle::send_cmd(std::string_view cmd, std::string& resp) const -> int {
   auto transferred = decltype(cmd)::size_type{0};
 
   for (auto const& chr : cmd)
@@ -133,13 +137,34 @@ auto DevHandle::send_cmd(std::string_view const cmd, std::string& resp) const ->
   return impl_->recv(resp);
 }
 
-auto DevHandle::send_cmd(std::string_view const cmd, int const max_resp_size) const -> std::string {
-  std::string resp;
-  resp.reserve(max_resp_size);
+auto DevHandle::send_cmd(std::string_view cmd) const -> std::string {
+  return send_cmd(cmd, default_buf_size);
+}
 
+auto DevHandle::send_cmd(std::string_view cmd, int const max_resp_size) const -> std::string {
+  std::string resp;
+
+  resp.reserve(max_resp_size);
   resp.resize(send_cmd(cmd, resp));
 
   return resp;
+}
+
+auto DevHandle::send_cmd(std::string_view cmd, char* const resp, int const max_resp_size) const
+    -> int {
+
+  auto transferred = decltype(cmd)::size_type{0};
+
+  for (auto const& chr : cmd)
+    transferred += impl_->send({&chr, 1});
+
+  if (transferred != cmd.length())
+    throw std::runtime_error("Failed to send command");
+
+  if (cmd[0] != '\r' && cmd[0] != 'p' && cmd[0] != 'P')
+    impl_->send("\r");
+
+  return impl_->recv(resp, max_resp_size);
 }
 
 auto DevHandle::recv_raw(std::string& resp) const -> int { return impl_->recv(resp); }

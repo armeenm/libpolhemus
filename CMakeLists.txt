@@ -145,8 +145,9 @@ if(C_BINDINGS)
   endif()
 
   target_link_libraries(polhemus_c
-    PRIVATE
+    PUBLIC
       polhemus_cxx
+    PRIVATE
       fmt::fmt)
 
   ################
