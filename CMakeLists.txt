@@ -19,9 +19,15 @@ option(C_BINDINGS
   "Enable C bindings"
   ON)
 
-list(PREPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+list(PREPEND CMAKE_PREFIX_PATH
+  ${CMAKE_BINARY_DIR})
+list(PREPEND CMAKE_MODULE_PATH
+  ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(LibUSB 1.0 REQUIRED MODULE)
+#set(CONAN_SYSTEM_INCLUDES ON)
+
+find_package(libusb CONFIG)
+find_package(fmt CONFIG)
 
 set(BUILD_OPTS 
   -Wshadow
@@ -86,7 +92,10 @@ if(STATIC_ANALYSIS)
     CXX_CPPCHECK "cppcheck;--std=c++11")
 endif()
 
-target_link_libraries(polhemus_cxx PRIVATE LibUSB::LibUSB)
+target_link_libraries(polhemus_cxx
+  PRIVATE
+    fmt::fmt
+    libusb::libusb)
 
 ################
 ## Installation
@@ -135,7 +144,10 @@ if(C_BINDINGS)
       CXX_CPPCHECK "cppcheck;--std=c++11")
   endif()
 
-  target_link_libraries(polhemus_c PRIVATE polhemus_cxx)
+  target_link_libraries(polhemus_c
+    PRIVATE
+      polhemus_cxx
+      fmt::fmt)
 
   ################
   ## Installation
@@ -177,13 +189,7 @@ configure_package_config_file(
   INSTALL_DESTINATION
     ${INSTALL_CONFIGDIR})
 
-configure_file(
-  ${CMAKE_CURRENT_LIST_DIR}/cmake/FindLibUSB.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/FindLibUSB.cmake
-  COPYONLY)
-
 install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/FindLibUSB.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/PolhemusConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/PolhemusConfigVersion.cmake
   DESTINATION
