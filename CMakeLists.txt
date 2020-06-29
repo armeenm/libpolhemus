@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.15...3.17 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15...3.18 FATAL_ERROR)
 
-include(cmake/BuildType.cmake)
+set(default_compile_commands_export ON)
 include(cmake/ExportCompileCommands.cmake)
 
 project(polhemus
@@ -19,12 +19,15 @@ option(C_BINDINGS
   "Enable C bindings"
   ON)
 
+set(default_build_type "Release")
+include(cmake/BuildType.cmake)
+
+include(cmake/ForceColored.cmake)
+
 list(PREPEND CMAKE_PREFIX_PATH
   ${CMAKE_BINARY_DIR})
 list(PREPEND CMAKE_MODULE_PATH
   ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/cmake)
-
-#set(CONAN_SYSTEM_INCLUDES ON)
 
 find_package(libusb CONFIG)
 find_package(fmt CONFIG)
@@ -46,14 +49,6 @@ set(BUILD_OPTS
   -Wpedantic
   -pipe
   -flto)
-
-if(FORCE_COLORED_OUTPUT OR CMAKE_GENERATOR STREQUAL "Ninja")
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-fdiagnostics-color=always)
-  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-fcolor-diagnostics)
-  endif()
-endif()
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Polhemus)
