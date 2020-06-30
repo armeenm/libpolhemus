@@ -1,0 +1,57 @@
+stages:
+  - build
+
+build-linux:
+  image: "gcc:8.4.0"
+  stage: build
+
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - apt-cache
+
+  before_script:
+    - export APT_CACHE_DIR=`pwd`/apt-cache
+    - echo $APT_CACHE_DIR
+    - mkdir -pv $APT_CACHE_DIR
+    - apt-get update -yq
+    - apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y -qq python3-pip sudo wget
+    - wget -qO-
+      "https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz"
+      | tar --strip-components=1 -xz -C /usr/local
+    - pip3 install conan
+    - conan --version
+    - cmake --version
+    - pip3 --version
+
+  script:
+    - conan install -if build --build=missing -s compiler.libcxx=libstdc++11 .
+    - cmake -S. -Bbuild
+    - cmake --build build
+
+.shared_windows_runners:
+  tags:
+    - shared-windows
+    - windows
+    - windows-1809
+
+build-windows:
+  extends:
+    - .shared_windows_runners
+  stage: build
+
+  before_script:
+    - choco install conan cmake --no-progress --installargs 'ADD_CMAKE_TO_PATH=System' -y -r
+    - $env:ChocolateyInstall = Convert-Path "$((Get-Command choco).Path)\..\.."   
+    - Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+    - md -Name conan_tmp
+    - $env:CONAN_USER_HOME="$pwd\conan_tmp"
+    - refreshenv
+    - conan --version
+    - cmake --version
+    - choco --version
+
+  script:
+    - conan install -if build --build=missing .
+    - cmake -S. -Bbuild
+    - cmake --build build --config Release

@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.15...3.18 FATAL_ERROR)
 
+list(PREPEND CMAKE_PREFIX_PATH
+  ${CMAKE_BINARY_DIR})
+list(PREPEND CMAKE_MODULE_PATH
+  ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+set(default_build_type "Release")
+include(cmake/BuildType.cmake)
+
 project(polhemus
   VERSION 1.0.0
   DESCRIPTION "Library to interface with Polhemus sensors")
@@ -16,40 +24,45 @@ option(C_BINDINGS
   "Enable C bindings"
   ON)
 
-set(default_build_type "Release")
-include(cmake/BuildType.cmake)
-
 set(default_compile_commands_export ON)
 include(cmake/ExportCompileCommands.cmake)
 
-list(PREPEND CMAKE_PREFIX_PATH
-  ${CMAKE_BINARY_DIR})
-list(PREPEND CMAKE_MODULE_PATH
-  ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/cmake)
-
-find_package(libusb CONFIG)
-find_package(fmt CONFIG)
-
-set(BUILD_OPTS 
-  -Wshadow
-  -Warray-bounds
-  -Wstringop-overflow
-  -Wduplicated-cond
-  -Wlogical-op
-  -Wduplicated-branches
-  -Wnull-dereference
-  -Wold-style-cast
-  -Wuseless-cast
-  -Wformat=2 
-  -Wall
-  -Wextra
-  -Wconversion
-  -Wpedantic
-  -pipe
-  -flto)
+find_package(libusb)
+find_package(fmt)
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Polhemus)
+
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+set(BUILD_OPTS 
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+    -Wshadow
+    -Warray-bounds
+    -Wstringop-overflow
+    -Wduplicated-cond
+    -Wlogical-op
+    -Wduplicated-branches
+    -Wnull-dereference
+    -Wold-style-cast
+    -Wuseless-cast
+    -Wformat=2 
+    -Wall
+    -Wextra
+    -Wconversion
+    -Wpedantic
+    -pipe
+    $<$<CONFIG:Debug>:
+      -fsanitize=address
+      -fsanitize=undefined
+    >
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:
+      -flto
+    >
+  >
+  $<$<CXX_COMPILER_ID:MSVC>:
+    /W4
+  >)
 
 ################################################################################
 ### C++ Library
@@ -65,28 +78,27 @@ add_library(Polhemus::polhemus_cxx ALIAS polhemus_cxx)
 
 target_include_directories(polhemus_cxx
   PUBLIC
-  $<INSTALL_INTERFACE:include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_options(polhemus_cxx PRIVATE ${BUILD_OPTS})
 target_compile_features(polhemus_cxx PUBLIC cxx_std_17)
-set_target_properties(polhemus_cxx PROPERTIES EXPORT_NAME polhemus_cxx)
+set_target_properties(polhemus_cxx PROPERTIES
+  EXPORT_NAME
+    polhemus_cxx
 
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-  target_compile_options(polhemus_cxx PRIVATE -fsanitize=address -fsanitize=undefined)
-  target_link_libraries(polhemus_cxx PRIVATE asan ubsan)
-endif()
-
-if(STATIC_ANALYSIS)
-  set_target_properties(polhemus_cxx PROPERTIES
-    CXX_CLANG_TIDY "clang-tidy;-checks=*;-header-filter=.*"
-    CXX_CPPCHECK "cppcheck;--std=c++11")
-endif()
+  $<STATIC_ANALYSIS:
+    CXX_CLANG_TIDY
+      "clang-tidy;-checks=*;-header-filter=.*"
+    CXX_CPPCHECK
+      "cppcheck;--std=c++11"
+  >)
 
 target_link_libraries(polhemus_cxx
   PRIVATE
+    debug "$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:asan;ubsan>"
     fmt::fmt
     libusb::libusb)
 
@@ -95,11 +107,18 @@ target_link_libraries(polhemus_cxx
 ################
 
 install(TARGETS polhemus_cxx
-  EXPORT polhemus-targets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  EXPORT
+    polhemus-targets
+  LIBRARY DESTINATION
+    ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION
+    ${CMAKE_INSTALL_LIBDIR})
 
-install(FILES include/polhemus.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(
+  FILES
+    include/polhemus.hpp
+  DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR})
 
 ################################################################################
 ### C Bindings
@@ -107,7 +126,8 @@ install(FILES include/polhemus.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(C_BINDINGS)
   file(GLOB C_SRCS
-    LIST_DIRECTORIES false
+    LIST_DIRECTORIES
+      false
     CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/polhemus/capi/*.cpp")
 
@@ -124,35 +144,44 @@ if(C_BINDINGS)
   target_compile_options(polhemus_c PRIVATE ${BUILD_OPTS})
   target_compile_features(polhemus_c PUBLIC c_function_prototypes PRIVATE cxx_std_17)
 
-  set_target_properties(polhemus_c PROPERTIES EXPORT_NAME polhemus_c)
+  set_target_properties(polhemus_c PROPERTIES
+    EXPORT_NAME
+      polhemus_c
 
-  if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-    target_compile_options(polhemus_c PRIVATE -fsanitize=address -fsanitize=undefined)
-    target_link_libraries(polhemus_c PRIVATE asan ubsan)
-  endif()
-
-  if(STATIC_ANALYSIS)
-    set_target_properties(polhemus_c PROPERTIES
-      CXX_CLANG_TIDY "clang-tidy;-checks=*;-header-filter=.*"
-      CXX_CPPCHECK "cppcheck;--std=c++11")
-  endif()
+    $<STATIC_ANALYSIS:
+      CXX_CLANG_TIDY
+        "clang-tidy;-checks=*;-header-filter=.*"
+      CXX_CPPCHECK
+        "cppcheck;--std=c++11"
+    >)
 
   target_link_libraries(polhemus_c
     PUBLIC
       polhemus_cxx
     PRIVATE
-      fmt::fmt)
+      fmt::fmt
+      libusb::libusb
+      debug "$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:asan;ubsan>")
 
   ################
   ## Installation
   ################
 
   install(TARGETS polhemus_c
-    EXPORT polhemus-targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    EXPORT
+      polhemus-targets
+    LIBRARY DESTINATION
+      ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION
+      ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION
+      ${CMAKE_INSTALL_BINDIR})
 
-  install(FILES include/polhemus.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  install(
+    FILES
+      include/polhemus.h
+    DESTINATION
+      ${CMAKE_INSTALL_INCLUDEDIR})
 
 endif()
 

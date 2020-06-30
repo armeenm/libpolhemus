@@ -18,3 +18,5 @@ cmake -S. -Bbuild
 cmake --build build
 cmake --install build
 ```
+
+For Windows, use `cmake --build build --config Release`
