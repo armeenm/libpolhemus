@@ -1,7 +1,7 @@
-#include "polhemus/cxx/dev_handle_impl.h"
+#include "cxx/dev_handle_impl.h"
 
-#include "polhemus/cxx/context.h"
-#include "polhemus/cxx/lits.h"
+#include "cxx/context.h"
+#include "cxx/lits.h"
 
 #include <cstdint>
 #include <fmt/format.h>

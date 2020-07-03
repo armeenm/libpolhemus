@@ -5,7 +5,7 @@ extern "C" {
 #include "polhemus.h"
 }
 
-#include "polhemus/common.h"
+#include "common.h"
 #include <type_traits>
 
 /* Macro to ease checking and casting in conv

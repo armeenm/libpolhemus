@@ -1,11 +1,11 @@
-#include "polhemus/capi/capi.h"
+#include "capi/capi.h"
 
 #include <cassert>
 #include <cstdio>
 #include <fmt/format.h>
 
-#include "polhemus/common.h"
-#include "polhemus/cxx/context.h"
+#include "common.h"
+#include "cxx/context.h"
 
 using namespace polhemus;
 

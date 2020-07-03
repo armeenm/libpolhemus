@@ -6,9 +6,9 @@
 #include <thread>
 
 #include "polhemus.hpp"
-#include "polhemus/cxx/context.h"
-#include "polhemus/cxx/dev_handle_impl.h"
-#include "polhemus/cxx/lits.h"
+#include "cxx/context.h"
+#include "cxx/dev_handle_impl.h"
+#include "cxx/lits.h"
 #include "third_party/magic_enum.hpp"
 
 auto constexpr inline default_buf_size = 1000;

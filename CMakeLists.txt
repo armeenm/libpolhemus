@@ -24,11 +24,17 @@ option(C_BINDINGS
   "Enable C bindings"
   ON)
 
+if(FORCE_COLORED_OUTPUT OR CMAKE_GENERATOR STREQUAL "Ninja")
+  add_compile_options(
+    $<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color=always>
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-fcolor-diagnostics>)
+endif()
+
 set(default_compile_commands_export ON)
 include(cmake/ExportCompileCommands.cmake)
 
-find_package(libusb)
-find_package(fmt)
+find_package(libusb REQUIRED CONFIG)
+find_package(fmt REQUIRED CONFIG)
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/polhemus)
@@ -71,7 +77,7 @@ set(BUILD_OPTS
 file(GLOB CXX_SRCS
   LIST_DIRECTORIES false
   CONFIGURE_DEPENDS
-  "${CMAKE_SOURCE_DIR}/polhemus/cxx/*.cpp")
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/cxx/*.cpp")
 
 add_library(polhemus_cxx SHARED ${CXX_SRCS})
 add_library(polhemus::polhemus_cxx ALIAS polhemus_cxx)
@@ -81,7 +87,7 @@ target_include_directories(polhemus_cxx
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_compile_options(polhemus_cxx PRIVATE ${BUILD_OPTS})
 target_compile_features(polhemus_cxx PUBLIC cxx_std_17)
@@ -129,7 +135,7 @@ if(C_BINDINGS)
     LIST_DIRECTORIES
       false
     CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/polhemus/capi/*.cpp")
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/capi/*.cpp")
 
   add_library(polhemus_c SHARED ${C_SRCS})
   add_library(polhemus::polhemus_c ALIAS polhemus_c)
@@ -139,7 +145,7 @@ if(C_BINDINGS)
       $<INSTALL_INTERFACE:include>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR})
+      ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
   target_compile_options(polhemus_c PRIVATE ${BUILD_OPTS})
   target_compile_features(polhemus_c PUBLIC c_function_prototypes PRIVATE cxx_std_17)
