@@ -10,7 +10,7 @@ include(cmake/BuildType.cmake)
 
 project(polhemus
   VERSION 1.0.0
-  DESCRIPTION "Library to interface with Polhemus sensors")
+  DESCRIPTION "Library to interface with polhemus sensors")
 
 option(FORCE_COLORED_OUTPUT
   "Always produce ANSI-colored output (GNU/Clang only)" 
@@ -31,7 +31,7 @@ find_package(libusb)
 find_package(fmt)
 
 include(GNUInstallDirs)
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Polhemus)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/polhemus)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
@@ -74,7 +74,7 @@ file(GLOB CXX_SRCS
   "${CMAKE_SOURCE_DIR}/polhemus/cxx/*.cpp")
 
 add_library(polhemus_cxx SHARED ${CXX_SRCS})
-add_library(Polhemus::polhemus_cxx ALIAS polhemus_cxx)
+add_library(polhemus::polhemus_cxx ALIAS polhemus_cxx)
 
 target_include_directories(polhemus_cxx
   PUBLIC
@@ -132,7 +132,7 @@ if(C_BINDINGS)
     "${CMAKE_SOURCE_DIR}/polhemus/capi/*.cpp")
 
   add_library(polhemus_c SHARED ${C_SRCS})
-  add_library(Polhemus::polhemus_c ALIAS polhemus_c)
+  add_library(polhemus::polhemus_c ALIAS polhemus_c)
 
   target_include_directories(polhemus_c
     PUBLIC
@@ -191,37 +191,37 @@ endif()
 
 install(EXPORT polhemus-targets
   FILE
-    PolhemusTargets.cmake
+    polhemusTargets.cmake
   NAMESPACE
-    Polhemus::
+    polhemus::
   DESTINATION
     ${INSTALL_CONFIGDIR})
 
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/PolhemusConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/polhemusConfigVersion.cmake
   VERSION
     ${PROJECT_VERSION}
   COMPATIBILITY
     AnyNewerVersion)
 
 configure_package_config_file(
-  ${CMAKE_CURRENT_LIST_DIR}/cmake/PolhemusConfig.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/PolhemusConfig.cmake
+  ${CMAKE_CURRENT_LIST_DIR}/cmake/polhemusConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/polhemusConfig.cmake
   INSTALL_DESTINATION
     ${INSTALL_CONFIGDIR})
 
 install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/PolhemusConfig.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/PolhemusConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/polhemusConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/polhemusConfigVersion.cmake
   DESTINATION
     ${INSTALL_CONFIGDIR})
 
 export(EXPORT polhemus-targets
   FILE 
-    ${CMAKE_CURRENT_BINARY_DIR}/PolhemusTargets.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/polhemusTargets.cmake
   NAMESPACE 
-    Polhemus::)
+    polhemus::)
 
-export(PACKAGE Polhemus)
+export(PACKAGE polhemus)
